@@ -1,16 +1,6 @@
 {
-  "version": 2,
-  "buildCommand": "npx prisma generate && npm run build",
-  "builds": [
-    {
-      "src": "dist/lambda.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["dist/**", "node_modules/.prisma/**"]
-      }
-    }
-  ],
-  "routes": [
-    { "src": "/(.*)", "dest": "dist/lambda.js" }
+  "buildCommand": "npx prisma generate",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
   ]
 }
