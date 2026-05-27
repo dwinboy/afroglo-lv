@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
 import { ConfigService } from '@nestjs/config'
 import helmet from 'helmet'
-import * as express from 'express'
+import express from 'express'
 import { AppModule } from '../src/app.module'
 
 const server = express()
