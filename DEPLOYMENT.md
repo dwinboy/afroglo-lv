@@ -27,7 +27,7 @@ Use these settings:
 Service root: repository root
 Config file: railway.json
 Builder: Nixpacks
-Build command: npm ci && npm --workspace @afroglow/api run build
+Build command: npm install --include=dev && npm --workspace @afroglow/api run build
 Start command: npm --workspace @afroglow/api run start:prod
 Health check path: /health
 ```
@@ -142,4 +142,3 @@ Then redeploy the Railway backend so CORS accepts the frontend domain.
 - Booking confirmations are visible in the admin panel.
 - Public stats use real database counts for professionals and bookings, with satisfaction fixed at 98%.
 - Public pages support English and Lithuanian through the language switcher.
-
