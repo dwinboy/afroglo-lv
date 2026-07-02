@@ -20,44 +20,68 @@ const socialLinks = [
   { icon: Youtube,    href: 'https://youtube.com/@afroglowlt',          label: 'YouTube'  },
 ]
 
-const quickLinks = [
-  { href: '/',              label: 'Home' },
-  { href: '/about',         label: 'About' },
-  { href: '/services',      label: 'Services' },
-  { href: '/professionals', label: 'Professionals' },
-  { href: '/rent-a-spot',   label: 'Rent a Spot' },
-  { href: '/book',          label: 'Book Now' },
-]
-
-const serviceLinks = [
-  'Haircut', 'Beard Trim', 'Braiding', 'Dreadlocks',
-  'Wig Installation', 'Hair Coloring',
-]
+const CTA_COPY = {
+  en: {
+    title: 'Ready for your next visit?',
+    text: 'Book a service or apply to rent a chair at Afroglow.',
+    book: 'Book now',
+    rent: 'Rent a spot',
+    hours: 'Working Hours',
+    weekdays: 'Mon - Fri: 09:00 - 21:00',
+    saturday: 'Saturday: 09:00 - 19:00',
+    sunday: 'Sunday: 10:00 - 17:00',
+  },
+  lt: {
+    title: 'Pasiruošę kitam vizitui?',
+    text: 'Rezervuokite paslaugą arba pateikite paraišką darbo vietai Afroglow.',
+    book: 'Rezervuoti',
+    rent: 'Nuomotis vietą',
+    hours: 'Darbo laikas',
+    weekdays: 'Pr - Pn: 09:00 - 21:00',
+    saturday: 'Šeštadienis: 09:00 - 19:00',
+    sunday: 'Sekmadienis: 10:00 - 17:00',
+  },
+} as const
 
 export default function Footer() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const currentYear = new Date().getFullYear()
+  const cta = CTA_COPY[locale]
+  const quickLinks = [
+    { href: '/',              label: t.nav.home },
+    { href: '/about',         label: t.nav.about },
+    { href: '/services',      label: t.nav.services },
+    { href: '/professionals', label: t.nav.professionals },
+    { href: '/rent-a-spot',   label: t.nav.rentASpot },
+    { href: '/book',          label: t.nav.booking },
+  ]
+  const serviceLinks = [
+    t.services.haircut.name,
+    t.services.beardTrim.name,
+    t.services.braiding.name,
+    t.services.dreadlocks.name,
+    t.services.wigInstallation.name,
+    t.services.hairColoring.name,
+  ]
 
   return (
     <footer className="bg-luxury-charcoal border-t border-luxury-border">
-      {/* Newsletter CTA */}
+      {/* Booking CTA */}
       <div className="border-b border-luxury-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
-              <h3 className="font-serif text-2xl font-bold text-white">Stay in the loop</h3>
-              <p className="text-gray-400 mt-1">Get exclusive offers & beauty tips delivered to your inbox.</p>
+              <h3 className="font-serif text-2xl font-bold text-white">{cta.title}</h3>
+              <p className="text-gray-400 mt-1">{cta.text}</p>
             </div>
-            <form className="flex gap-3 w-full md:w-auto" onSubmit={e => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="input-luxury min-w-0 flex-1 md:w-72"
-              />
-              <button type="submit" className="btn-gold whitespace-nowrap">
-                Subscribe <ArrowRight size={16} />
-              </button>
-            </form>
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <Link href="/book" className="btn-gold whitespace-nowrap">
+                {cta.book} <ArrowRight size={16} />
+              </Link>
+              <Link href="/rent-a-spot" className="btn-outline-gold whitespace-nowrap">
+                {cta.rent}
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -156,11 +180,11 @@ export default function Footer() {
 
             {/* Working Hours */}
             <div className="mt-6">
-              <h5 className="text-sm font-semibold text-white mb-2">Working Hours</h5>
+              <h5 className="text-sm font-semibold text-white mb-2">{cta.hours}</h5>
               <div className="space-y-1 text-xs text-gray-400">
-                <p>Mon – Fri: 09:00 – 21:00</p>
-                <p>Saturday: 09:00 – 19:00</p>
-                <p>Sunday: 10:00 – 17:00</p>
+                <p>{cta.weekdays}</p>
+                <p>{cta.saturday}</p>
+                <p>{cta.sunday}</p>
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Clock, ChevronRight, Loader } from 'lucide-react'
+import { Clock, ChevronRight, Scissors } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { api } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
@@ -46,6 +46,7 @@ const COPY = {
     ctaText: "Contact us and we'll connect you with the perfect professional for your specific needs.",
     consultation: 'Book a Consultation',
     browse: 'Browse Professionals',
+    emptyCta: 'Explore professionals',
   },
   lt: {
     all: 'Visos',
@@ -60,12 +61,36 @@ const COPY = {
     ctaText: 'Susisiekite su mumis ir padėsime rasti tinkamiausią specialistą jūsų poreikiams.',
     consultation: 'Rezervuoti konsultaciją',
     browse: 'Peržiūrėti specialistus',
+    emptyCta: 'Peržiūrėti specialistus',
   },
 } as const
 
 function getServiceVisual(service: Service) {
   const haystack = `${service.name} ${service.category} ${service.description ?? ''}`.toLowerCase()
   return SERVICE_VISUALS.find(visual => visual.keywords.some(keyword => haystack.includes(keyword)))
+}
+
+function ServiceCardSkeleton() {
+  return (
+    <div className="card-luxury overflow-hidden">
+      <div className="skeleton-luxury h-44 rounded-none" />
+      <div className="space-y-4 p-6">
+        <div className="flex items-start justify-between">
+          <div className="skeleton-luxury h-10 w-10 rounded-xl" />
+          <div className="skeleton-luxury h-6 w-16" />
+        </div>
+        <div className="skeleton-luxury h-5 w-2/3" />
+        <div className="space-y-2">
+          <div className="skeleton-luxury h-3 w-full" />
+          <div className="skeleton-luxury h-3 w-4/5" />
+        </div>
+        <div className="flex items-center justify-between border-t border-luxury-border pt-4">
+          <div className="skeleton-luxury h-4 w-20" />
+          <div className="skeleton-luxury h-8 w-20" />
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function ServicesPage() {
@@ -128,11 +153,18 @@ export default function ServicesPage() {
       <section className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
-            <div className="flex items-center justify-center py-24">
-              <Loader size={36} className="text-gold-400 animate-spin" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" aria-label="Loading services">
+              {Array.from({ length: 8 }).map((_, i) => <ServiceCardSkeleton key={i} />)}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-24 text-gray-400">{copy.empty}</div>
+            <div className="card-luxury mx-auto max-w-xl p-10 text-center">
+              <Scissors size={34} className="mx-auto mb-4 text-gold-400" />
+              <h2 className="font-serif text-2xl font-bold text-white mb-2">{copy.empty}</h2>
+              <p className="text-sm text-gray-400 mb-6">{copy.ctaText}</p>
+              <Link href="/professionals" className="btn-outline-gold">
+                {copy.emptyCta} <ChevronRight size={16} />
+              </Link>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filtered.map((service, i) => {

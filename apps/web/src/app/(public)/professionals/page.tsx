@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Star, Search, ChevronRight, Clock } from 'lucide-react'
+import { Star, Search, ChevronRight, Clock, RotateCcw, Users } from 'lucide-react'
 import { api } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 import { cn, formatPrice, getInitials } from '@/lib/utils'
@@ -42,6 +42,7 @@ const COPY = {
     book: 'Book',
     noneTitle: 'No professionals found',
     noneText: 'Try adjusting your search or filters.',
+    reset: 'Reset filters',
     modalBio: 'Afroglow team professional.',
     services: 'Services',
     portfolio: 'Portfolio',
@@ -66,12 +67,36 @@ const COPY = {
     book: 'Rezervuoti',
     noneTitle: 'Specialistų nerasta',
     noneText: 'Pabandykite pakeisti paiešką arba filtrus.',
+    reset: 'Išvalyti filtrus',
     modalBio: 'Afroglow komandos specialistas.',
     services: 'Paslaugos',
     portfolio: 'Darbų galerija',
     bookWith: (name: string) => `Rezervuoti pas ${name}`,
   },
 } as const
+
+function ProfessionalCardSkeleton() {
+  return (
+    <div className="card-luxury overflow-hidden">
+      <div className="skeleton-luxury h-64 rounded-none" />
+      <div className="space-y-4 p-5">
+        <div className="skeleton-luxury h-4 w-2/3" />
+        <div className="space-y-2">
+          <div className="skeleton-luxury h-3 w-full" />
+          <div className="skeleton-luxury h-3 w-4/5" />
+        </div>
+        <div className="flex gap-2">
+          <div className="skeleton-luxury h-6 w-20 rounded-full" />
+          <div className="skeleton-luxury h-6 w-24 rounded-full" />
+        </div>
+        <div className="flex items-center justify-between border-t border-luxury-border pt-4">
+          <div className="skeleton-luxury h-8 w-28" />
+          <div className="skeleton-luxury h-9 w-24" />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function ProfessionalsPage() {
   const { locale } = useI18n()
@@ -101,6 +126,10 @@ export default function ProfessionalsPage() {
     return (filter === 'All' || p.specialization === filter) &&
       (!query || name.includes(query) || services.includes(query) || speciality.includes(query))
   })
+  const resetFilters = () => {
+    setSearch('')
+    setFilter('All')
+  }
 
   return (
     <div className="min-h-screen bg-luxury-black pt-20">
@@ -152,7 +181,9 @@ export default function ProfessionalsPage() {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {loading ? (
-            <div className="py-24 flex items-center justify-center"><div className="luxury-loader" /></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" aria-label="Loading professionals">
+              {Array.from({ length: 6 }).map((_, i) => <ProfessionalCardSkeleton key={i} />)}
+            </div>
           ) : (
             <>
               <p className="text-sm text-gray-400 mb-8">{copy.found(filtered.length)}</p>
@@ -244,9 +275,13 @@ export default function ProfessionalsPage() {
               </div>
 
               {filtered.length === 0 && (
-                <div className="text-center py-24">
+                <div className="card-luxury mx-auto max-w-xl p-10 text-center">
+                  <Users size={34} className="mx-auto mb-4 text-gold-400" />
                   <h3 className="text-xl font-semibold text-white mb-2">{copy.noneTitle}</h3>
-                  <p className="text-gray-400">{copy.noneText}</p>
+                  <p className="text-gray-400 mb-6">{copy.noneText}</p>
+                  <button type="button" onClick={resetFilters} className="btn-outline-gold">
+                    <RotateCcw size={15} /> {copy.reset}
+                  </button>
                 </div>
               )}
             </>

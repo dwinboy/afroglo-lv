@@ -173,7 +173,7 @@ export default function Navbar() {
                   {t.nav.login}
                 </Link>
                 <Link href="/book" className="btn-gold text-sm py-2 px-5">
-                  Book Now
+                  {t.nav.booking}
                 </Link>
               </>
             )}
@@ -237,7 +237,7 @@ export default function Navbar() {
                       {t.nav.login}
                     </Link>
                     <Link href="/book" className="block btn-gold w-full text-center py-3">
-                      Book Now
+                      {t.nav.booking}
                     </Link>
                   </>
                 )}
