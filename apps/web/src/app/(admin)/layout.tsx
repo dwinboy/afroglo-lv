@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Calendar, MapPin,
   Star, Settings, LogOut, Menu, X, Shield,
-  ChevronRight, Home, Bell, ClipboardList, Scissors, Tag,
+  ChevronRight, Home, Bell, ClipboardList, Scissors, Tag, ImageIcon,
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn, getInitials } from '@/lib/utils'
@@ -17,6 +17,7 @@ const ADMIN_NAV = [
   { href: '/admin/professionals', icon: Scissors,        label: 'Professionals' },
   { href: '/admin/bookings',      icon: Calendar,        label: 'Bookings'      },
   { href: '/admin/services',      icon: Tag,             label: 'Services'      },
+  { href: '/admin/gallery',       icon: ImageIcon,       label: 'Gallery'       },
   { href: '/admin/spots',         icon: MapPin,          label: 'Spots'         },
   { href: '/admin/applications',  icon: ClipboardList,   label: 'Applications'  },
   { href: '/admin/reviews',       icon: Star,            label: 'Reviews'       },

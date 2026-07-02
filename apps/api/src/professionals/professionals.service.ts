@@ -75,8 +75,13 @@ export class ProfessionalsService {
         orderBy: { avgRating: 'desc' },
         include: {
           user:      { select: { fullName: true, avatarUrl: true, email: true } },
-          services:  { select: { name: true, price: true } },
-          portfolio: { take: 4 },
+          services:  { select: { id: true, name: true, price: true, duration: true } },
+          portfolio: {
+            where: { isPublic: true },
+            orderBy: { order: 'asc' },
+            take: 12,
+            select: { imageUrl: true, caption: true, serviceType: true },
+          },
           rentalSpot:true,
         },
       }),
@@ -92,7 +97,7 @@ export class ProfessionalsService {
       include: {
         user:         { select: { fullName: true, avatarUrl: true, email: true, phone: true } },
         services:     true,
-        portfolio:    true,
+        portfolio:    { where: { isPublic: true }, orderBy: { order: 'asc' } },
         rentalSpot:   true,
         availability: true,
         reviews: {

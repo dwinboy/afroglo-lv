@@ -257,6 +257,50 @@ Transactional emails include:
 
 ## 🚢 Deployment
 
+### Vercel frontend + Railway backend + PostgreSQL
+
+Deploy the backend first so the frontend can point to its public API URL.
+
+#### Railway backend
+
+Create a Railway project from this repository and keep the project root at the repository root so `railway.json` can build `@afroglow/api`.
+
+Required Railway variables:
+
+- `NODE_ENV=production`
+- `PORT=4000`
+- `DATABASE_URL=postgresql://...`
+- `DIRECT_URL=postgresql://...`
+- `JWT_SECRET=<strong random secret>`
+- `REFRESH_TOKEN_SECRET=<strong random secret>`
+- `FRONTEND_URL=https://<your-vercel-app>.vercel.app`
+- `FRONTEND_URLS=https://<your-custom-domain>,https://<your-vercel-app>.vercel.app`
+- `API_URL=https://<your-railway-domain>`
+- `SMTP_*`, `STRIPE_*`, and `CLOUDINARY_*` as needed for live features
+
+After the first Railway deploy, initialize the database schema once:
+
+```bash
+railway run npm --workspace @afroglow/api run prisma:push
+```
+
+For long-term production change management, add and commit Prisma migrations, then switch deploy-time schema changes to `prisma migrate deploy`.
+
+#### Vercel frontend
+
+Create a Vercel project with root directory `apps/web`.
+
+Required Vercel variables:
+
+- `NEXT_PUBLIC_API_URL=https://<your-railway-domain>/api`
+- `NEXT_PUBLIC_APP_URL=https://<your-vercel-app>.vercel.app`
+- `NEXT_PUBLIC_APP_NAME=Afroglow`
+- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<optional>`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=<optional>`
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID=<optional>`
+
+Then redeploy the frontend after the Railway API URL is stable.
+
 ### Production with Docker
 
 ```bash

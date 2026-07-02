@@ -1,17 +1,20 @@
 /** @type {import('next').NextConfig} */
-function parseHost(url) {
-  try { return new URL(url).host } catch { return null }
-}
+const appUrl = process.env.NEXT_PUBLIC_APP_URL
+const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined
+
+const allowedServerActionOrigins = [
+  'localhost:3000',
+  'afroglow.lt',
+  appUrl,
+  vercelUrl,
+]
+  .filter(Boolean)
+  .map((origin) => origin.replace(/^https?:\/\//, ''))
 
 const nextConfig = {
   experimental: {
     serverActions: {
-      allowedOrigins: [
-        'localhost:3000',
-        'afroglow.lt',
-        process.env.VERCEL_URL,
-        parseHost(process.env.NEXT_PUBLIC_APP_URL),
-      ].filter(Boolean),
+      allowedOrigins: allowedServerActionOrigins,
     },
   },
   images: {

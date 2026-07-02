@@ -19,6 +19,9 @@ import { AdminModule } from './admin/admin.module'
 import { UploadModule } from './upload/upload.module'
 import { MailModule } from './mail/mail.module'
 import { ContractsModule } from './contracts/contracts.module'
+import { HealthController } from './health.controller'
+import { BranchSettingsController } from './branch-settings.controller'
+import { PublicStatsController } from './public-stats.controller'
 
 @Module({
   imports: [
@@ -61,5 +64,6 @@ import { ContractsModule } from './contracts/contracts.module'
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
+  controllers: [HealthController, BranchSettingsController, PublicStatsController],
 })
 export class AppModule {}

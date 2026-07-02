@@ -337,6 +337,25 @@ model Portfolio {
   @@map("portfolios")
 }
 
+// ─── Site Gallery ────────────────────────────────────
+model GalleryItem {
+  id          String   @id @default(cuid())
+  title       String
+  caption     String?
+  imageUrl    String
+  category    String?
+  tags        String[] @default([])
+  isFeatured  Boolean  @default(false)
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isPublished])
+  @@index([category])
+  @@map("gallery_items")
+}
+
 // ─── Review ───────────────────────────────────────────
 model Review {
   id             String   @id @default(cuid())

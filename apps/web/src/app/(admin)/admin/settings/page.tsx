@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Settings, MapPin, Phone, Mail, Clock, Save } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { api } from '@/contexts/AuthContext'
 
 interface BranchSettings {
   name:    string
@@ -13,13 +14,13 @@ interface BranchSettings {
   phone:   string
   email:   string
   openingHours: {
-    monday:    { open: string; close: string }
-    tuesday:   { open: string; close: string }
-    wednesday: { open: string; close: string }
-    thursday:  { open: string; close: string }
-    friday:    { open: string; close: string }
-    saturday:  { open: string; close: string }
-    sunday:    { open: string; close: string }
+    monday:    { open: string; close: string; closed?: boolean }
+    tuesday:   { open: string; close: string; closed?: boolean }
+    wednesday: { open: string; close: string; closed?: boolean }
+    thursday:  { open: string; close: string; closed?: boolean }
+    friday:    { open: string; close: string; closed?: boolean }
+    saturday:  { open: string; close: string; closed?: boolean }
+    sunday:    { open: string; close: string; closed?: boolean }
   }
 }
 
@@ -46,8 +47,31 @@ const DEFAULT: BranchSettings = {
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<BranchSettings>(DEFAULT)
   const [loading, setSaving]    = useState(false)
+  const [loadingSettings, setLoadingSettings] = useState(true)
 
-  // No branches API yet — settings are pre-filled from defaults
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const { data } = await api.get('/admin/settings/branch')
+        setSettings({
+          ...DEFAULT,
+          name: data.name ?? DEFAULT.name,
+          address: data.address ?? DEFAULT.address,
+          city: data.city ?? DEFAULT.city,
+          country: data.country ?? DEFAULT.country,
+          phone: data.phone ?? DEFAULT.phone,
+          email: data.email ?? DEFAULT.email,
+          openingHours: data.openingHours ?? DEFAULT.openingHours,
+        })
+      } catch {
+        toast.error('Failed to load branch settings')
+      } finally {
+        setLoadingSettings(false)
+      }
+    }
+
+    fetchSettings()
+  }, [])
 
   function setHours(day: typeof DAYS[number], field: 'open' | 'close', value: string) {
     setSettings(s => ({
@@ -56,13 +80,37 @@ export default function AdminSettingsPage() {
     }))
   }
 
+  function setClosed(day: typeof DAYS[number], closed: boolean) {
+    setSettings(s => ({
+      ...s,
+      openingHours: { ...s.openingHours, [day]: { ...s.openingHours[day], closed } },
+    }))
+  }
+
   async function save() {
     setSaving(true)
-    // Branch update API coming soon — settings are managed via database seed for now
-    setTimeout(() => {
-      toast.success('Settings noted ✓  (branch API coming soon)')
+    try {
+      const { data } = await api.put('/admin/settings/branch', settings)
+      setSettings({
+        ...settings,
+        name: data.name,
+        address: data.address,
+        city: data.city,
+        country: data.country,
+        phone: data.phone ?? '',
+        email: data.email ?? '',
+        openingHours: data.openingHours ?? settings.openingHours,
+      })
+      toast.success('Settings saved')
+    } catch {
+      toast.error('Failed to save settings')
+    } finally {
       setSaving(false)
-    }, 400)
+    }
+  }
+
+  if (loadingSettings) {
+    return <div className="p-16 text-center"><div className="luxury-loader mx-auto" /></div>
   }
 
   return (
@@ -111,17 +159,28 @@ export default function AdminSettingsPage() {
 
         <div className="space-y-3">
           {DAYS.map(day => (
-            <div key={day} className="flex items-center gap-4">
+            <div key={day} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <span className="text-sm text-gray-400 capitalize w-24">{day}</span>
               <div className="flex items-center gap-2 flex-1">
                 <input type="time" value={settings.openingHours[day].open}
                   onChange={e => setHours(day, 'open', e.target.value)}
-                  className="input-luxury flex-1 text-sm" />
+                  disabled={settings.openingHours[day].closed}
+                  className="input-luxury flex-1 text-sm disabled:opacity-40" />
                 <span className="text-gray-500 text-sm">–</span>
                 <input type="time" value={settings.openingHours[day].close}
                   onChange={e => setHours(day, 'close', e.target.value)}
-                  className="input-luxury flex-1 text-sm" />
+                  disabled={settings.openingHours[day].closed}
+                  className="input-luxury flex-1 text-sm disabled:opacity-40" />
               </div>
+              <label className="flex items-center gap-2 text-sm text-gray-300">
+                <input
+                  type="checkbox"
+                  checked={!!settings.openingHours[day].closed}
+                  onChange={e => setClosed(day, e.target.checked)}
+                  className="accent-gold-500"
+                />
+                Closed
+              </label>
             </div>
           ))}
         </div>

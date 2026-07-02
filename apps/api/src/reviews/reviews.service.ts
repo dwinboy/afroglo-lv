@@ -14,6 +14,7 @@ export class ReviewsService {
         include: {
           author:       { select: { fullName: true, avatarUrl: true } },
           professional: { include: { user: { select: { fullName: true } } } },
+          booking:      { include: { service: { select: { name: true } } } },
         },
       }),
       this.prisma.review.count(),
@@ -21,6 +22,7 @@ export class ReviewsService {
     return { data: data.map(r => ({
       ...r,
       clientName: (r as any).author?.fullName ?? 'Guest',
+      service:    r.booking?.service ?? null,
     })), total, page, limit }
   }
 

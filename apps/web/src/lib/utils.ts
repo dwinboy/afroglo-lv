@@ -87,4 +87,4 @@ export function getRatingStars(rating: number): string {
   return '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating))
 }
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://afroglowlv-api.vercel.app/api'
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4001/api'

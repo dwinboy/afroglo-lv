@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { cn, API_URL } from '@/lib/utils'
 import { api } from '@/contexts/AuthContext'
+import { useI18n } from '@/contexts/I18nContext'
 
 /* ── schema ──────────────────────────────────── */
 const applicationSchema = z.object({
@@ -91,7 +92,100 @@ function formatAvailableFrom(date: string | null | undefined) {
   return `Available from ${d.toLocaleDateString('en', { month: 'long', year: 'numeric' })}`
 }
 
+const RENT_LT = {
+  heroTitle: ['Nuomokitės', 'darbo vietą'],
+  heroText: 'Prisijunkite prie Afroglow bendruomenės. Kokybiška darbo vieta, klientų srautas ir mažiau administracinio streso.',
+  spotsAvailable: (count: number) => `Laisvų vietų: ${count || 5}`,
+  clientsMonth: '200+ klientų per mėnesį',
+  rated: '5★ įvertinta erdvė',
+  availabilityTitle: 'Laisvos darbo vietos',
+  availabilitySubtitle: 'Visos 5 Afroglow Vilniaus kėdės atnaujinamos realiu laiku',
+  available: 'Laisva',
+  occupied: 'Užimta',
+  chairPrice: 'Kėdė · €35/diena\n€180/savaitė · €600/mėn.',
+  selected: 'Pasirinkta',
+  selectSpot: 'Pasirinkti vietą',
+  rentedBy: 'Nuomoja',
+  rentalOngoing: 'Nuoma tęsiasi',
+  availableSoon: 'Bus laisva netrukus',
+  availableFrom: (date: Date) => `Laisva nuo ${date.toLocaleDateString('lt-LT', { month: 'long', year: 'numeric' })}`,
+  legendAvailable: 'Laisva — spauskite, kad pasirinktumėte',
+  legendOccupied: 'Užimta — matykite, kada atsilaisvins',
+  plansTitle: 'Nuomos planai',
+  plansSubtitle: 'Pasirinkite planą pagal savo darbo ritmą',
+  popular: 'Populiariausia',
+  applyNow: 'Pateikti paraišką',
+  includedTitle: 'Kas įskaičiuota',
+  includedSubtitle: 'Kiekviena vieta paruošta darbui',
+  rulesTitle: 'Studijos taisyklės ir politika',
+  formTitle: 'Pateikti paraišką dėl vietos',
+  formSubtitle: 'Užpildykite formą, o mūsų komanda peržiūrės paraišką per 48 valandas.',
+  receivedTitle: 'Paraiška gauta!',
+  receivedText: 'Ačiū, kad kreipėtės į Afroglow. Mūsų komanda peržiūrės paraišką ir susisieks per 48 darbo valandas.',
+  another: 'Pateikti kitą paraišką',
+  spotPreselected: (spot: string) => `Vieta ${spot} pasirinkta iš anksto. Ją galite pakeisti žemiau.`,
+  personal: 'Asmeninė informacija',
+  professional: 'Profesinė informacija',
+  rental: 'Nuomos pageidavimai',
+  labels: {
+    fullName: 'Vardas ir pavardė *',
+    email: 'El. paštas *',
+    phone: 'Telefonas *',
+    instagram: 'Instagram (nebūtina)',
+    profession: 'Profesija *',
+    experience: 'Patirtis *',
+    specialization: 'Specializacija *',
+    duration: 'Nuomos trukmė *',
+    startDate: 'Pageidaujama pradžios data *',
+    spot: 'Pageidaujama vieta',
+    optional: '(nebūtina — rodomos tik laisvos vietos)',
+    message: 'Papasakokite apie save *',
+  },
+  options: {
+    selectProfession: 'Pasirinkite profesiją',
+    barber: 'Kirpėjas',
+    hairdresser: 'Plaukų meistras',
+    braider: 'Pynimų meistras',
+    loctician: 'Dreadlokų specialistas',
+    colorist: 'Koloristas',
+    stylist: 'Stilistas',
+    other: 'Kita',
+    selectExperience: 'Pasirinkite patirtį',
+    noPreference: 'Nėra pageidavimo',
+    spotAvailable: (spot: string) => `Vieta ${spot} — laisva dabar`,
+  },
+  placeholders: {
+    fullName: 'Jonas Jonaitis',
+    email: 'jonas@example.com',
+    specialization: 'pvz. afro fade, box braids, plaukų dažymas...',
+    message: 'Papasakokite apie savo patirtį, klientus ir kodėl norite prisijungti prie Afroglow...',
+  },
+  terms: ['Sutinku su', 'Naudojimo sąlygomis', 'ir', 'Privatumo politika'],
+  submitting: 'Siunčiama...',
+  submit: 'Pateikti paraišką',
+  toastSuccess: 'Paraiška pateikta! Susisieksime per 48 valandas.',
+  toastError: 'Paraiškos pateikti nepavyko. Bandykite dar kartą.',
+  plans: [
+    { name: 'Diena', period: 'per dieną', features: ['8 val. prieiga prie darbo vietos', 'Visa įranga įskaičiuota', 'Greitas Wi-Fi', 'Registratūros pagalba'], cta: 'Išbandyti' },
+    { name: 'Savaitė', period: 'per savaitę', features: ['40 val. prieiga', 'Visa įranga įskaičiuota', 'Wi-Fi ir komunalinės paslaugos', 'Rinkodaros palaikymas', 'Profilio skelbimas'], cta: 'Populiariausia' },
+    { name: 'Mėnuo', period: 'per mėnesį', features: ['Neribota prieiga', 'Priskirta darbo vieta', 'Visa įranga', 'Wi-Fi ir komunalinės paslaugos', 'Premium rinkodara', 'Socialinių tinklų reklama', 'Prekės ženklo palaikymas'], cta: 'Geriausia vertė' },
+  ],
+  amenities: ['Kokybiška įranga', 'Greitas Wi-Fi', 'Registratūros komanda', 'Apsaugos kameros', 'VIP klientų zona', 'Rinkodaros palaikymas', 'Lankstus grafikas', 'Mokėjimų apdorojimas'],
+  rules: [
+    'Visada palaikykite švarią ir tvarkingą darbo vietą',
+    'Su klientais ir kolegomis elkitės pagarbiai',
+    'Laikykitės suplanuoto grafiko arba praneškite administracijai prieš 24 val.',
+    'Nepernuomokite savo vietos be administracijos patvirtinimo',
+    'Darbo metu būtina profesionali apranga',
+    'Laikykitės Lietuvos sveikatos ir saugos reikalavimų',
+    'Būtina patirties ir sertifikatų patikra',
+  ],
+}
+
 export default function RentASpotPage() {
+  const { locale } = useI18n()
+  const isLt = locale === 'lt'
+  const c = RENT_LT
   const [selectedPlan,    setSelectedPlan]    = useState<'daily' | 'weekly' | 'monthly'>('weekly')
   const [isSubmitted,     setIsSubmitted]      = useState(false)
   const [isLoading,       setIsLoading]        = useState(false)
@@ -125,15 +219,18 @@ export default function RentASpotPage() {
       setIsSubmitted(true)
       reset()
       setChosenSpot('')
-      toast.success("Application submitted! We'll be in touch within 48 hours.")
+      toast.success(isLt ? c.toastSuccess : "Application submitted! We'll be in touch within 48 hours.")
     } catch {
-      toast.error('Failed to submit application. Please try again.')
+      toast.error(isLt ? c.toastError : 'Failed to submit application. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
   const availableCount = spots.filter(s => s.isAvailable).length
+  const plans = isLt ? PLANS.map((plan, i) => ({ ...plan, ...c.plans[i] })) : PLANS
+  const amenities = isLt ? AMENITIES.map((a, i) => ({ ...a, name: c.amenities[i] })) : AMENITIES
+  const rules = isLt ? c.rules : RULES
 
   return (
     <div className="min-h-screen bg-luxury-black pt-20">
@@ -146,17 +243,17 @@ export default function RentASpotPage() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
             <div className="gold-line mb-6" />
             <h1 className="section-title mb-6">
-              Rent Your <span className="gold-shimmer">Working Spot</span>
+              {isLt ? c.heroTitle[0] : 'Rent Your'} <span className="gold-shimmer">{isLt ? c.heroTitle[1] : 'Working Spot'}</span>
             </h1>
             <p className="text-xl text-gray-300 mb-8">
-              Join the Afroglow community. Premium workspace, built-in clients, zero overhead stress. Focus on what you do best.
+              {isLt ? c.heroText : 'Join the Afroglow community. Premium workspace, built-in clients, zero overhead stress. Focus on what you do best.'}
             </p>
             <div className="flex flex-wrap gap-4">
-              {[
+              {(isLt ? [c.spotsAvailable(availableCount), c.clientsMonth, c.rated] : [
                 `${availableCount || 5} Spots Available`,
                 '200+ Clients/Month',
                 '5★ Rated Workspace',
-              ].map(s => (
+              ]).map(s => (
                 <div key={s} className="flex items-center gap-2 px-4 py-2 glass rounded-full">
                   <CheckCircle size={14} className="text-gold-400" />
                   <span className="text-sm text-gray-300">{s}</span>
@@ -172,9 +269,9 @@ export default function RentASpotPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-3"><div className="gold-line" /></div>
-            <h2 className="section-title">Live Spot Availability</h2>
+            <h2 className="section-title">{isLt ? c.availabilityTitle : 'Live Spot Availability'}</h2>
             <p className="section-subtitle mx-auto">
-              All 5 chairs at Afroglow Vilnius — updated in real time
+              {isLt ? c.availabilitySubtitle : 'All 5 chairs at Afroglow Vilnius — updated in real time'}
             </p>
           </div>
 
@@ -224,14 +321,14 @@ export default function RentASpotPage() {
                         'text-xs font-semibold uppercase tracking-wide',
                         isAvailable ? 'text-green-400' : 'text-red-400',
                       )}>
-                        {isAvailable ? 'Available' : 'Occupied'}
+                        {isAvailable ? (isLt ? c.available : 'Available') : (isLt ? c.occupied : 'Occupied')}
                       </span>
                     </div>
 
                     {isAvailable ? (
                       <>
                         <p className="text-xs text-gray-400 mb-4">
-                          Chair · €35/day<br/>€180/week · €600/mo
+                          {isLt ? <>{c.chairPrice.split('\n')[0]}<br />{c.chairPrice.split('\n')[1]}</> : <>Chair · €35/day<br/>€180/week · €600/mo</>}
                         </p>
                         <div className={cn(
                           'mt-auto text-xs px-3 py-1.5 rounded-lg font-medium transition-colors',
@@ -239,14 +336,14 @@ export default function RentASpotPage() {
                             ? 'bg-green-500/20 text-green-300 border border-green-500/30'
                             : 'bg-white/5 text-gray-400 border border-white/10 group-hover:text-green-400',
                         )}>
-                          {chosenSpot === spot.spotNumber ? '✓ Selected' : 'Select spot'}
+                          {chosenSpot === spot.spotNumber ? `✓ ${isLt ? c.selected : 'Selected'}` : (isLt ? c.selectSpot : 'Select spot')}
                         </div>
                       </>
                     ) : (
                       <div className="text-xs text-gray-500 space-y-1">
                         {tenantName && (
                           <p className="text-gray-400">
-                            Rented by <span className="font-medium text-white">{tenantName}</span>
+                            {isLt ? c.rentedBy : 'Rented by'} <span className="font-medium text-white">{tenantName}</span>
                           </p>
                         )}
                         <p className={cn(
@@ -255,7 +352,9 @@ export default function RentASpotPage() {
                             ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                             : 'text-gray-600',
                         )}>
-                          {formatAvailableFrom(endDate)}
+                          {isLt
+                            ? (!endDate ? c.rentalOngoing : (new Date(endDate) <= new Date() ? c.availableSoon : c.availableFrom(new Date(endDate))))
+                            : formatAvailableFrom(endDate)}
                         </p>
                       </div>
                     )}
@@ -268,10 +367,10 @@ export default function RentASpotPage() {
           {/* Legend */}
           <div className="flex items-center justify-center gap-6 mt-8 text-xs text-gray-400">
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-green-400" /> Available — click to pre-select
+              <span className="w-2 h-2 rounded-full bg-green-400" /> {isLt ? c.legendAvailable : 'Available — click to pre-select'}
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-400" /> Occupied — see when it frees up
+              <span className="w-2 h-2 rounded-full bg-red-400" /> {isLt ? c.legendOccupied : 'Occupied — see when it frees up'}
             </div>
           </div>
         </div>
@@ -282,11 +381,11 @@ export default function RentASpotPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <div className="flex justify-center mb-3"><div className="gold-line" /></div>
-            <h2 className="section-title">Rental Plans</h2>
-            <p className="section-subtitle mx-auto">Choose the plan that fits your working style</p>
+            <h2 className="section-title">{isLt ? c.plansTitle : 'Rental Plans'}</h2>
+            <p className="section-subtitle mx-auto">{isLt ? c.plansSubtitle : 'Choose the plan that fits your working style'}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {PLANS.map((plan, i) => (
+            {plans.map((plan, i) => (
               <motion.div
                 key={plan.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -297,7 +396,7 @@ export default function RentASpotPage() {
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <span className="badge-gold px-4 py-1.5 text-xs">Most Popular</span>
+                    <span className="badge-gold px-4 py-1.5 text-xs">{isLt ? c.popular : 'Most Popular'}</span>
                   </div>
                 )}
                 <h3 className="font-serif font-bold text-xl text-white mb-1">{plan.name}</h3>
@@ -325,7 +424,7 @@ export default function RentASpotPage() {
                       : 'border border-gold-500/30 text-gold-400 hover:bg-gold-500/10',
                   )}
                 >
-                  {plan.cta} — Apply Now
+                  {plan.cta} — {isLt ? c.applyNow : 'Apply Now'}
                 </button>
               </motion.div>
             ))}
@@ -338,11 +437,11 @@ export default function RentASpotPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-3"><div className="gold-line" /></div>
-            <h2 className="section-title">What's Included</h2>
-            <p className="section-subtitle mx-auto">Every spot comes fully equipped</p>
+            <h2 className="section-title">{isLt ? c.includedTitle : "What's Included"}</h2>
+            <p className="section-subtitle mx-auto">{isLt ? c.includedSubtitle : 'Every spot comes fully equipped'}</p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-            {AMENITIES.map((a, i) => (
+            {amenities.map((a, i) => (
               <motion.div
                 key={a.name}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -366,11 +465,11 @@ export default function RentASpotPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-3"><div className="gold-line" /></div>
-            <h2 className="section-title">Studio Rules & Policies</h2>
+            <h2 className="section-title">{isLt ? c.rulesTitle : 'Studio Rules & Policies'}</h2>
           </div>
           <div className="card-luxury p-8">
             <ul className="space-y-4">
-              {RULES.map((rule, i) => (
+              {rules.map((rule, i) => (
                 <motion.li
                   key={i}
                   initial={{ opacity: 0, x: -20 }}
@@ -395,9 +494,9 @@ export default function RentASpotPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-3"><div className="gold-line" /></div>
-            <h2 className="section-title">Apply to Rent a Spot</h2>
+            <h2 className="section-title">{isLt ? c.formTitle : 'Apply to Rent a Spot'}</h2>
             <p className="section-subtitle mx-auto">
-              Fill out the form below and our team will review your application within 48 hours.
+              {isLt ? c.formSubtitle : 'Fill out the form below and our team will review your application within 48 hours.'}
             </p>
           </div>
 
@@ -410,12 +509,12 @@ export default function RentASpotPage() {
               <div className="w-20 h-20 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center mx-auto mb-6">
                 <CheckCircle size={36} className="text-green-400" />
               </div>
-              <h3 className="font-serif text-2xl font-bold text-white mb-4">Application Received!</h3>
+              <h3 className="font-serif text-2xl font-bold text-white mb-4">{isLt ? c.receivedTitle : 'Application Received!'}</h3>
               <p className="text-gray-400 mb-8">
-                Thank you for applying to Afroglow. Our team will review your application and reach out within 48 business hours.
+                {isLt ? c.receivedText : 'Thank you for applying to Afroglow. Our team will review your application and reach out within 48 business hours.'}
               </p>
               <button onClick={() => setIsSubmitted(false)} className="btn-outline-gold">
-                Submit Another Application
+                {isLt ? c.another : 'Submit Another Application'}
               </button>
             </motion.div>
           ) : (
@@ -426,7 +525,7 @@ export default function RentASpotPage() {
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-green-500/10 border border-green-500/30">
                   <MapPin size={16} className="text-green-400 flex-shrink-0" />
                   <p className="text-sm text-green-300">
-                    Spot <span className="font-bold">{chosenSpot}</span> pre-selected. You can change this below.
+                    {isLt ? c.spotPreselected(chosenSpot) : <>Spot <span className="font-bold">{chosenSpot}</span> pre-selected. You can change this below.</>}
                   </p>
                 </div>
               )}
@@ -435,26 +534,26 @@ export default function RentASpotPage() {
               <div>
                 <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-gold-500/20 border border-gold-500/30 text-gold-400 flex items-center justify-center text-xs">1</span>
-                  Personal Information
+                  {isLt ? c.personal : 'Personal Information'}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="label-luxury">Full Name *</label>
-                    <input {...register('fullName')} className="input-luxury" placeholder="John Doe" />
+                    <label className="label-luxury">{isLt ? c.labels.fullName : 'Full Name *'}</label>
+                    <input {...register('fullName')} className="input-luxury" placeholder={isLt ? c.placeholders.fullName : 'John Doe'} />
                     {errors.fullName && <p className="text-xs text-red-400 mt-1">{errors.fullName.message}</p>}
                   </div>
                   <div>
-                    <label className="label-luxury">Email Address *</label>
-                    <input {...register('email')} type="email" className="input-luxury" placeholder="john@example.com" />
+                    <label className="label-luxury">{isLt ? c.labels.email : 'Email Address *'}</label>
+                    <input {...register('email')} type="email" className="input-luxury" placeholder={isLt ? c.placeholders.email : 'john@example.com'} />
                     {errors.email && <p className="text-xs text-red-400 mt-1">{errors.email.message}</p>}
                   </div>
                   <div>
-                    <label className="label-luxury">Phone Number *</label>
+                    <label className="label-luxury">{isLt ? c.labels.phone : 'Phone Number *'}</label>
                     <input {...register('phone')} className="input-luxury" placeholder="+370 691 50485" />
                     {errors.phone && <p className="text-xs text-red-400 mt-1">{errors.phone.message}</p>}
                   </div>
                   <div>
-                    <label className="label-luxury">Instagram (optional)</label>
+                    <label className="label-luxury">{isLt ? c.labels.instagram : 'Instagram (optional)'}</label>
                     <input {...register('instagramHandle')} className="input-luxury" placeholder="@yourhandle" />
                   </div>
                 </div>
@@ -464,27 +563,27 @@ export default function RentASpotPage() {
               <div>
                 <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-gold-500/20 border border-gold-500/30 text-gold-400 flex items-center justify-center text-xs">2</span>
-                  Professional Details
+                  {isLt ? c.professional : 'Professional Details'}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="label-luxury">Profession *</label>
+                    <label className="label-luxury">{isLt ? c.labels.profession : 'Profession *'}</label>
                     <select {...register('profession')} className="input-luxury">
-                      <option value="">Select profession</option>
-                      <option value="barber">Barber</option>
-                      <option value="hairdresser">Hairdresser</option>
-                      <option value="braider">Braider</option>
-                      <option value="loctician">Loctician</option>
-                      <option value="colorist">Colorist</option>
-                      <option value="stylist">Stylist</option>
-                      <option value="other">Other</option>
+                      <option value="">{isLt ? c.options.selectProfession : 'Select profession'}</option>
+                      <option value="barber">{isLt ? c.options.barber : 'Barber'}</option>
+                      <option value="hairdresser">{isLt ? c.options.hairdresser : 'Hairdresser'}</option>
+                      <option value="braider">{isLt ? c.options.braider : 'Braider'}</option>
+                      <option value="loctician">{isLt ? c.options.loctician : 'Loctician'}</option>
+                      <option value="colorist">{isLt ? c.options.colorist : 'Colorist'}</option>
+                      <option value="stylist">{isLt ? c.options.stylist : 'Stylist'}</option>
+                      <option value="other">{isLt ? c.options.other : 'Other'}</option>
                     </select>
                     {errors.profession && <p className="text-xs text-red-400 mt-1">{errors.profession.message}</p>}
                   </div>
                   <div>
-                    <label className="label-luxury">Years of Experience *</label>
+                    <label className="label-luxury">{isLt ? c.labels.experience : 'Years of Experience *'}</label>
                     <select {...register('yearsExperience')} className="input-luxury">
-                      <option value="">Select experience</option>
+                      <option value="">{isLt ? c.options.selectExperience : 'Select experience'}</option>
                       <option value="0-1">0–1 years</option>
                       <option value="2-3">2–3 years</option>
                       <option value="4-6">4–6 years</option>
@@ -494,11 +593,11 @@ export default function RentASpotPage() {
                     {errors.yearsExperience && <p className="text-xs text-red-400 mt-1">{errors.yearsExperience.message}</p>}
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="label-luxury">Specialization *</label>
+                    <label className="label-luxury">{isLt ? c.labels.specialization : 'Specialization *'}</label>
                     <input
                       {...register('specialization')}
                       className="input-luxury"
-                      placeholder="e.g. Afro fades, Box braids, Hair coloring…"
+                      placeholder={isLt ? c.placeholders.specialization : 'e.g. Afro fades, Box braids, Hair coloring…'}
                     />
                     {errors.specialization && <p className="text-xs text-red-400 mt-1">{errors.specialization.message}</p>}
                   </div>
@@ -509,13 +608,13 @@ export default function RentASpotPage() {
               <div>
                 <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-gold-500/20 border border-gold-500/30 text-gold-400 flex items-center justify-center text-xs">3</span>
-                  Rental Preferences
+                  {isLt ? c.rental : 'Rental Preferences'}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="label-luxury">Rental Duration *</label>
+                    <label className="label-luxury">{isLt ? c.labels.duration : 'Rental Duration *'}</label>
                     <div className="flex gap-3">
-                      {PLANS.map(p => (
+                      {plans.map(p => (
                         <label key={p.id} className="flex-1">
                           <input
                             {...register('rentalDuration')}
@@ -538,7 +637,7 @@ export default function RentASpotPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="label-luxury">Preferred Start Date *</label>
+                    <label className="label-luxury">{isLt ? c.labels.startDate : 'Preferred Start Date *'}</label>
                     <input
                       {...register('startDate')}
                       type="date"
@@ -551,8 +650,8 @@ export default function RentASpotPage() {
                   {/* Preferred Spot */}
                   <div className="sm:col-span-2">
                     <label className="label-luxury">
-                      Preferred Spot
-                      <span className="text-gray-600 ml-1 text-xs">(optional — only available spots shown)</span>
+                      {isLt ? c.labels.spot : 'Preferred Spot'}
+                      <span className="text-gray-600 ml-1 text-xs">{isLt ? c.labels.optional : '(optional — only available spots shown)'}</span>
                     </label>
                     <select
                       {...register('preferredSpot')}
@@ -563,12 +662,12 @@ export default function RentASpotPage() {
                       }}
                       className="input-luxury"
                     >
-                      <option value="">No preference</option>
+                      <option value="">{isLt ? c.options.noPreference : 'No preference'}</option>
                       {spots
                         .filter(s => s.isAvailable)
                         .map(s => (
                           <option key={s.id} value={s.spotNumber}>
-                            Spot {s.spotNumber} — Available now
+                            {isLt ? c.options.spotAvailable(s.spotNumber) : `Spot ${s.spotNumber} — Available now`}
                           </option>
                         ))}
                     </select>
@@ -578,12 +677,12 @@ export default function RentASpotPage() {
 
               {/* Message */}
               <div>
-                <label className="label-luxury">Tell Us About Yourself *</label>
+                <label className="label-luxury">{isLt ? c.labels.message : 'Tell Us About Yourself *'}</label>
                 <textarea
                   {...register('message')}
                   rows={4}
                   className="input-luxury resize-none"
-                  placeholder="Tell us about your experience, your clients, and why you want to join Afroglow…"
+                  placeholder={isLt ? c.placeholders.message : 'Tell us about your experience, your clients, and why you want to join Afroglow…'}
                 />
                 {errors.message && <p className="text-xs text-red-400 mt-1">{errors.message.message}</p>}
               </div>
@@ -597,10 +696,10 @@ export default function RentASpotPage() {
                   className="mt-1 w-4 h-4 rounded border-luxury-border bg-luxury-surface checked:accent-gold-500 cursor-pointer"
                 />
                 <label htmlFor="agreeTerms" className="text-sm text-gray-400 cursor-pointer">
-                  I agree to the{' '}
-                  <Link href="/terms" className="text-gold-400 hover:text-gold-300">Terms of Service</Link>
-                  {' '}and{' '}
-                  <Link href="/privacy" className="text-gold-400 hover:text-gold-300">Privacy Policy</Link>
+                  {isLt ? c.terms[0] : 'I agree to the'}{' '}
+                  <Link href="/terms" className="text-gold-400 hover:text-gold-300">{isLt ? c.terms[1] : 'Terms of Service'}</Link>
+                  {' '}{isLt ? c.terms[2] : 'and'}{' '}
+                  <Link href="/privacy" className="text-gold-400 hover:text-gold-300">{isLt ? c.terms[3] : 'Privacy Policy'}</Link>
                 </label>
               </div>
               {errors.agreeTerms && <p className="text-xs text-red-400 -mt-3">{errors.agreeTerms.message}</p>}
@@ -612,9 +711,9 @@ export default function RentASpotPage() {
                 className="btn-gold w-full justify-center text-base py-4"
               >
                 {isLoading ? (
-                  <><div className="luxury-loader !w-5 !h-5 !border-2" /> Submitting…</>
+                  <><div className="luxury-loader !w-5 !h-5 !border-2" /> {isLt ? c.submitting : 'Submitting…'}</>
                 ) : (
-                  <><ArrowRight size={18} /> Submit Application</>
+                  <><ArrowRight size={18} /> {isLt ? c.submit : 'Submit Application'}</>
                 )}
               </button>
             </form>

@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useI18n } from '@/contexts/I18nContext'
 
 const loginSchema = z.object({
-  email:    z.string().email('Please enter a valid email'),
+  email:    z.string().trim().toLowerCase().email('Please enter a valid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 

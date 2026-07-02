@@ -8,15 +8,20 @@ import { formatPrice } from '@/lib/utils'
 
 interface Booking {
   id: string
-  clientName: string
-  clientEmail: string
+  clientName?: string
+  clientEmail?: string
   clientPhone?: string
+  guestName?: string | null
+  guestEmail?: string | null
+  guestPhone?: string | null
   date: string
   time: string
   status: string
-  totalPrice: number
+  totalPrice?: number
+  totalAmount?: number | null
   service?: { name: string }
   professional?: { user: { fullName: string } }
+  customer?: { fullName: string; email: string; phone?: string | null } | null
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
@@ -121,16 +126,21 @@ export default function AdminBookingsPage() {
                 {bookings.map(b => {
                   const cfg = STATUS_CONFIG[b.status] ?? STATUS_CONFIG.PENDING
                   const Icon = cfg.icon
+                  const clientName = b.clientName ?? b.guestName ?? b.customer?.fullName ?? 'Guest client'
+                  const clientEmail = b.clientEmail ?? b.guestEmail ?? b.customer?.email ?? 'No email'
+                  const clientPhone = b.clientPhone ?? b.guestPhone ?? b.customer?.phone
+                  const totalPrice = b.totalPrice ?? b.totalAmount ?? 0
                   return (
                     <tr key={b.id} className="hover:bg-luxury-surface/30 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-gradient-gold flex items-center justify-center text-luxury-black font-bold text-xs">
-                            {b.clientName?.charAt(0).toUpperCase()}
+                            {clientName.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="text-sm text-white font-medium">{b.clientName}</p>
-                            <p className="text-xs text-gray-400">{b.clientEmail}</p>
+                            <p className="text-sm text-white font-medium">{clientName}</p>
+                            <p className="text-xs text-gray-400">{clientEmail}</p>
+                            {clientPhone && <p className="text-xs text-gray-500">{clientPhone}</p>}
                           </div>
                         </div>
                       </td>
@@ -152,7 +162,7 @@ export default function AdminBookingsPage() {
                           <span>{new Date(b.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} · {b.time}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-white font-medium">{formatPrice(b.totalPrice)}</td>
+                      <td className="px-4 py-3 text-sm text-white font-medium">{formatPrice(totalPrice)}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.color}`}>
                           <Icon size={12} />

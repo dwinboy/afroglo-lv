@@ -109,7 +109,7 @@ export default function AdminServicesPage() {
   const f = (key: keyof typeof form, val: any) => setForm(p => ({ ...p, [key]: val }))
 
   const activeCount   = services.filter(s => s.isActive).length
-  const totalRevPotential = services.filter(s => s.isActive).reduce((a, s) => a + s.price, 0)
+  const activeServices = services.filter(s => s.isActive)
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -131,7 +131,7 @@ export default function AdminServicesPage() {
           { label: 'Total Services', value: services.length },
           { label: 'Active',         value: activeCount },
           { label: 'Inactive',       value: services.length - activeCount },
-          { label: 'Price Range',    value: services.length ? `€${Math.min(...services.filter(s=>s.isActive).map(s=>s.price))}–€${Math.max(...services.filter(s=>s.isActive).map(s=>s.price))}` : '—' },
+          { label: 'Price Range',    value: activeServices.length ? `€${Math.min(...activeServices.map(s=>s.price))}–€${Math.max(...activeServices.map(s=>s.price))}` : '—' },
         ].map(s => (
           <div key={s.label} className="card-luxury p-4">
             <p className="text-xs text-gray-400">{s.label}</p>

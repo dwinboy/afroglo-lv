@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, useInView } from 'framer-motion'
@@ -10,6 +10,7 @@ import {
   CalendarDays, Sparkles, TrendingUp, ArrowRight,
 } from 'lucide-react'
 import { useI18n } from '@/contexts/I18nContext'
+import { api } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
 /* ── helpers ──────────────────────────────────── */
@@ -49,12 +50,17 @@ const FadeIn = ({
 }
 
 /* ── DATA ──────────────────────────────────────── */
-const STATS = [
-  { value: '50+',   label: 'Professionals' },
-  { value: '200+',  label: 'Daily Bookings' },
-  { value: '98%',   label: 'Satisfaction' },
-  { value: '5+',    label: 'Years Experience' },
-]
+type PublicStats = {
+  professionals: number
+  bookings: number
+  satisfaction: number
+}
+
+const DEFAULT_PUBLIC_STATS: PublicStats = {
+  professionals: 0,
+  bookings: 0,
+  satisfaction: 0,
+}
 
 const SERVICES = [
   { icon: '✂️',  name: 'Haircut',          desc: 'Precision cuts tailored to your style',          price: 'from €15' },
@@ -67,13 +73,36 @@ const SERVICES = [
   { icon: '🌟',  name: 'Kids Haircut',      desc: 'Gentle, fun cuts for the little ones',           price: 'from €12' },
 ]
 
+const HAIRCUT_GALLERY = [
+  {
+    src: '/images/haircuts/black-hair-barber-1.jpg',
+    title: 'Chair Service',
+    caption: 'Professional barber care in a clean studio setting',
+  },
+  {
+    src: '/images/haircuts/beard-fade.jpg',
+    title: 'Skin Fade & Beard',
+    caption: 'Smooth blend, shaped beard, polished profile',
+  },
+  {
+    src: '/images/haircuts/design-beard.jpg',
+    title: 'Cut Design',
+    caption: 'Detailed line work and beard grooming',
+  },
+  {
+    src: '/images/haircuts/crisp-lineup.jpeg',
+    title: 'Crisp Line Up',
+    caption: 'Sharp edges for a fresh daily look',
+  },
+]
+
 const PROFESSIONALS = [
   {
     name: 'Marcus Johnson',
     role: 'Master Barber',
     rating: 4.9,
     reviews: 312,
-    image: 'https://images.unsplash.com/photo-1595152452543-e5fc22ef827d?w=400&h=400&fit=crop',
+    image: '/images/haircuts/beard-fade.jpg',
     speciality: 'Fades & Tapers',
     price: 'from €20',
   },
@@ -82,7 +111,7 @@ const PROFESSIONALS = [
     role: 'Hair Braider',
     rating: 5.0,
     reviews: 284,
-    image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop',
+    image: '/images/haircuts/high-top-fade-chair.avif',
     speciality: 'Box Braids & Twists',
     price: 'from €45',
   },
@@ -91,7 +120,7 @@ const PROFESSIONALS = [
     role: 'Loctician',
     rating: 4.8,
     reviews: 196,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+    image: '/images/haircuts/design-beard.jpg',
     speciality: 'Dreadlocks Specialist',
     price: 'from €60',
   },
@@ -100,7 +129,7 @@ const PROFESSIONALS = [
     role: 'Stylist & Colorist',
     rating: 4.9,
     reviews: 421,
-    image: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=400&fit=crop',
+    image: '/images/haircuts/crisp-lineup.jpeg',
     speciality: 'Color & Treatment',
     price: 'from €45',
   },
@@ -170,7 +199,109 @@ const RENTAL_BENEFITS = [
    Homepage Component
 ──────────────────────────────────────────────── */
 export default function HomePage() {
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
+  const [publicStats, setPublicStats] = useState<PublicStats>(DEFAULT_PUBLIC_STATS)
+  const services = useMemo(() => [
+    { icon: '✂️',  name: t.services.haircut.name,          desc: t.services.haircut.desc,          price: locale === 'lt' ? 'nuo €15' : 'from €15' },
+    { icon: '🪒',  name: t.services.beardTrim.name,        desc: t.services.beardTrim.desc,        price: locale === 'lt' ? 'nuo €10' : 'from €10' },
+    { icon: '🧵',  name: t.services.braiding.name,         desc: t.services.braiding.desc,         price: locale === 'lt' ? 'nuo €40' : 'from €40' },
+    { icon: '🔒',  name: t.services.dreadlocks.name,       desc: t.services.dreadlocks.desc,       price: locale === 'lt' ? 'nuo €60' : 'from €60' },
+    { icon: '👑',  name: t.services.wigInstallation.name,  desc: t.services.wigInstallation.desc,  price: locale === 'lt' ? 'nuo €50' : 'from €50' },
+    { icon: '🎨',  name: t.services.hairColoring.name,     desc: t.services.hairColoring.desc,     price: locale === 'lt' ? 'nuo €45' : 'from €45' },
+    { icon: '💫',  name: t.services.womenStyling.name,     desc: t.services.womenStyling.desc,     price: locale === 'lt' ? 'nuo €30' : 'from €30' },
+    { icon: '🌟',  name: t.services.kidsHaircut.name,      desc: t.services.kidsHaircut.desc,      price: locale === 'lt' ? 'nuo €12' : 'from €12' },
+  ], [locale, t])
+
+  const gallery = useMemo(() => locale === 'lt' ? [
+    { src: '/images/haircuts/black-hair-barber-1.jpg', title: 'Darbas kėdėje', caption: 'Profesionali priežiūra švarioje salono aplinkoje' },
+    { src: '/images/haircuts/beard-fade.jpg', title: 'Skin fade ir barzda', caption: 'Tolygus perėjimas, suformuota barzda ir tvarkingas profilis' },
+    { src: '/images/haircuts/design-beard.jpg', title: 'Kirpimo dizainas', caption: 'Tikslus linijų darbas ir barzdos formavimas' },
+    { src: '/images/haircuts/crisp-lineup.jpeg', title: 'Ryški kontūro linija', caption: 'Aštrūs kontūrai gaiviam kasdieniam įvaizdžiui' },
+  ] : HAIRCUT_GALLERY, [locale])
+
+  const faqs = useMemo(() => locale === 'lt' ? [
+    { q: 'Kaip rezervuoti vizitą?', a: 'Pasirinkite paslaugą, specialistą, jums tinkamą laiką ir patvirtinkite rezervaciją. Patvirtinimą matys administratorius.' },
+    { q: 'Ar galiu atšaukti arba pakeisti rezervaciją?', a: 'Taip, rezervaciją galite pakeisti arba atšaukti iki vizito likus 24 valandoms.' },
+    { q: 'Kaip veikia darbo vietos nuoma?', a: 'Grožio specialistai pateikia paraišką, o po patvirtinimo gali naudotis darbo vieta, įranga ir salono infrastruktūra pasirinktu laikotarpiu.' },
+    { q: 'Ar specialistai yra patikrinti?', a: 'Taip, kiekvienas Afroglow specialistas yra peržiūrimas administratoriaus, o jo paslaugos, kainos ir galerija valdomos sistemoje.' },
+    { q: 'Kokius mokėjimo būdus priimate?', a: 'Priimame pagrindines banko korteles, bankinius pavedimus ir skaitmeninius mokėjimus, kai jie įjungti sistemoje.' },
+    { q: 'Ar galima įsigyti dovanų kuponą?', a: 'Taip, dėl dovanų kuponų galite susisiekti su Afroglow komanda.' },
+  ] : FAQS, [locale])
+
+  const rentalBenefits = useMemo(() => [
+    { icon: Clock,    title: t.rental.benefits.flexible.title,   desc: t.rental.benefits.flexible.desc },
+    { icon: Users,    title: t.rental.benefits.clientBase.title, desc: t.rental.benefits.clientBase.desc },
+    { icon: Zap,      title: t.rental.benefits.equipment.title,  desc: t.rental.benefits.equipment.desc },
+    { icon: Heart,    title: t.rental.benefits.community.title,  desc: t.rental.benefits.community.desc },
+    { icon: Globe2,   title: t.rental.benefits.marketing.title,  desc: t.rental.benefits.marketing.desc },
+    { icon: Award,    title: t.rental.benefits.training.title,   desc: t.rental.benefits.training.desc },
+  ], [t])
+
+  const pageCopy = locale === 'lt' ? {
+    scroll: 'Slinkti',
+    viewServices: 'Peržiūrėti visas paslaugas',
+    meetProfessionals: 'Visi specialistai',
+    popular: 'Populiaru',
+    plans: [
+      { plan: 'Diena', price: '€35', period: '/diena', features: ['8 val. prieiga', 'Visa įranga', 'Wi-Fi'] },
+      { plan: 'Savaitė', price: '€180', period: '/savaitė', features: ['40 val. prieiga', 'Visa įranga', 'Wi-Fi', 'Rinkodaros palaikymas'], popular: true },
+      { plan: 'Mėnuo', price: '€600', period: '/mėnuo', features: ['Pilna prieiga', 'Visa įranga', 'Wi-Fi', 'Rinkodara', 'Prekės ženklo palaikymas'] },
+    ],
+    galleryTitle: 'Naujausi darbai',
+    gallerySubtitle: 'Tikri kirpimų pavyzdžiai, parodantys kokybės lygį',
+    mapTitle: 'Kur mus rasti',
+    mapSubtitle: 'Aplankykite mus Vilniaus širdyje',
+    finalTitle: 'Pasiruošę Afroglow patirčiai?',
+    finalText: 'Prisijunkite prie klientų ir specialistų, kurie Afroglow renkasi kaip savo grožio erdvę.',
+    finalBook: 'Rezervuoti vizitą',
+    finalBrowse: 'Peržiūrėti specialistus',
+  } : {
+    scroll: 'Scroll',
+    viewServices: 'View All Services',
+    meetProfessionals: 'Meet All Professionals',
+    popular: 'Popular',
+    plans: [
+      { plan: 'Daily',   price: '€35',  period: '/day',  features: ['8h access', 'All equipment', 'Wi-Fi'] },
+      { plan: 'Weekly',  price: '€180', period: '/week', features: ['40h access', 'All equipment', 'Wi-Fi', 'Marketing support'], popular: true },
+      { plan: 'Monthly', price: '€600', period: '/month', features: ['Full access', 'All equipment', 'Wi-Fi', 'Marketing', 'Branding package'] },
+    ],
+    galleryTitle: 'Fresh From the Chair',
+    gallerySubtitle: 'Real haircut references that show the quality clients can expect',
+    mapTitle: 'Find Us',
+    mapSubtitle: 'Visit us in the heart of Vilnius, Lithuania',
+    finalTitle: 'Ready to Experience Afroglow?',
+    finalText: 'Join thousands of satisfied clients and professionals who call Afroglow home.',
+    finalBook: 'Book an Appointment',
+    finalBrowse: 'Browse Professionals',
+  }
+
+  useEffect(() => {
+    let mounted = true
+
+    api.get<Partial<PublicStats>>('/stats/public')
+      .then(({ data }) => {
+        if (!mounted) return
+        setPublicStats({
+          professionals: Number(data.professionals ?? 0),
+          bookings:      Number(data.bookings ?? 0),
+          satisfaction:  Number(data.satisfaction ?? 0),
+        })
+      })
+      .catch(() => {
+        if (mounted) setPublicStats(DEFAULT_PUBLIC_STATS)
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  const stats = useMemo(() => [
+    { value: publicStats.professionals.toLocaleString(), label: t.hero.stats.professionals },
+    { value: publicStats.bookings.toLocaleString(),      label: t.hero.stats.dailyBookings },
+    { value: `${publicStats.satisfaction}%`,             label: t.hero.stats.satisfaction },
+    { value: '5+',                                       label: t.hero.stats.yearsExperience },
+  ], [publicStats, t])
 
   return (
     <div className="min-h-screen bg-luxury-black overflow-x-hidden">
@@ -178,12 +309,17 @@ export default function HomePage() {
       {/* ══════════ HERO ══════════ */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
         {/* Background */}
-        <div className="absolute inset-0 bg-gradient-hero" />
+        <Image
+          src="/images/haircuts/black-hair-barber-1.jpg"
+          alt="Afroglow barber preparing a client in the chair"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-luxury-black/70 via-luxury-black/60 to-luxury-black" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(10,10,10,0.62)_70%)]" />
         <div className="absolute inset-0 bg-noise opacity-30" />
-
-        {/* Decorative orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gold-600/5 rounded-full blur-3xl" />
 
         {/* Grid lines */}
         <div className="absolute inset-0 opacity-5"
@@ -250,7 +386,7 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.6 }}
               className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-16 pt-10 border-t border-white/10"
             >
-              {STATS.map((stat, i) => (
+              {stats.map((stat, i) => (
                 <div key={i} className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-gradient-gold">{stat.value}</div>
                   <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">{stat.label}</div>
@@ -266,7 +402,7 @@ export default function HomePage() {
           transition={{ repeat: Infinity, duration: 2 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
         >
-          <span className="text-xs text-gray-500 uppercase tracking-widest">Scroll</span>
+          <span className="text-xs text-gray-500 uppercase tracking-widest">{pageCopy.scroll}</span>
           <div className="w-px h-8 bg-gradient-to-b from-gold-500 to-transparent" />
         </motion.div>
       </section>
@@ -283,7 +419,7 @@ export default function HomePage() {
           </FadeIn>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {SERVICES.map((service, i) => (
+            {services.map((service, i) => (
               <FadeIn key={service.name} delay={i * 0.07} direction="up">
                 <Link href="/services" className="card-luxury p-6 block group cursor-pointer">
                   <div className="text-4xl mb-4">{service.icon}</div>
@@ -299,7 +435,7 @@ export default function HomePage() {
 
           <FadeIn className="text-center mt-12">
             <Link href="/services" className="btn-outline-gold">
-              View All Services <ChevronRight size={16} />
+              {pageCopy.viewServices} <ChevronRight size={16} />
             </Link>
           </FadeIn>
         </div>
@@ -363,7 +499,7 @@ export default function HomePage() {
 
           <FadeIn className="text-center mt-12">
             <Link href="/professionals" className="btn-outline-gold">
-              Meet All Professionals <ChevronRight size={16} />
+              {pageCopy.meetProfessionals} <ChevronRight size={16} />
             </Link>
           </FadeIn>
         </div>
@@ -382,7 +518,7 @@ export default function HomePage() {
               <p className="text-gray-400 text-lg mb-8">{t.rental.subtitle}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
-                {RENTAL_BENEFITS.map((b, i) => (
+                {rentalBenefits.map((b, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-xl bg-gold-500/10 border border-gold-500/20
                                     flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -404,11 +540,7 @@ export default function HomePage() {
             {/* Right: Pricing Cards */}
             <FadeIn direction="right">
               <div className="grid gap-6">
-                {[
-                  { plan: 'Daily',   price: '€35',  period: '/day',  features: ['8h access', 'All equipment', 'Wi-Fi'] },
-                  { plan: 'Weekly',  price: '€180', period: '/week', features: ['40h access', 'All equipment', 'Wi-Fi', 'Marketing support'], popular: true },
-                  { plan: 'Monthly', price: '€600', period: '/month', features: ['Full access', 'All equipment', 'Wi-Fi', 'Marketing', 'Branding package'] },
-                ].map(tier => (
+                {pageCopy.plans.map(tier => (
                   <div
                     key={tier.plan}
                     className={cn(
@@ -419,7 +551,7 @@ export default function HomePage() {
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <h4 className="font-semibold text-white">{tier.plan}</h4>
-                        {tier.popular && <span className="badge-gold text-xs">Popular</span>}
+                        {tier.popular && <span className="badge-gold text-xs">{pageCopy.popular}</span>}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {tier.features.map(f => (
@@ -448,35 +580,31 @@ export default function HomePage() {
             <div className="flex justify-center mb-3">
               <div className="gold-line" />
             </div>
-            <h2 className="section-title">Our Gallery</h2>
-            <p className="section-subtitle mx-auto">A glimpse into the Afroglow experience</p>
+            <h2 className="section-title">{pageCopy.galleryTitle}</h2>
+            <p className="section-subtitle mx-auto">{pageCopy.gallerySubtitle}</p>
           </FadeIn>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {[
-              'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&h=400&fit=crop',
-              'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&h=400&fit=crop',
-              'https://images.unsplash.com/photo-1560869713-7d0a29430803?w=400&h=400&fit=crop',
-              'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=400&fit=crop',
-              'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&h=400&fit=crop',
-              'https://images.unsplash.com/photo-1634449571010-02389ed0f9b0?w=400&h=400&fit=crop',
-              'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=400&fit=crop',
-              'https://images.unsplash.com/photo-1536520002442-39d9adaf3f41?w=400&h=400&fit=crop',
-            ].map((src, i) => (
-              <FadeIn key={i} delay={i * 0.05}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {gallery.map((item, i) => (
+              <FadeIn key={item.title} delay={i * 0.05}>
                 <div className={cn(
-                  'relative overflow-hidden rounded-2xl group cursor-pointer',
-                  (i === 0 || i === 5) ? 'row-span-2' : '',
+                  'relative overflow-hidden rounded-lg group border border-luxury-border bg-luxury-charcoal',
+                  i === 0 ? 'sm:col-span-2 lg:col-span-2' : '',
                 )}>
                   <Image
-                    src={src}
-                    alt={`Gallery ${i + 1}`}
-                    width={400}
-                    height={400}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                    src={item.src}
+                    alt={item.title}
+                    width={720}
+                    height={720}
+                    className={cn(
+                      'w-full object-cover group-hover:scale-105 transition-transform duration-500',
+                      i === 0 ? 'h-80' : 'h-64',
+                    )}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent
-                                  opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent p-5">
+                    <h3 className="text-white font-semibold">{item.title}</h3>
+                    <p className="text-xs text-gray-300 mt-1">{item.caption}</p>
+                  </div>
                 </div>
               </FadeIn>
             ))}
@@ -538,7 +666,7 @@ export default function HomePage() {
           </FadeIn>
 
           <div className="space-y-4">
-            {FAQS.map((faq, i) => (
+            {faqs.map((faq, i) => (
               <FadeIn key={i} delay={i * 0.05}>
                 <FAQItem question={faq.q} answer={faq.a} />
               </FadeIn>
@@ -554,8 +682,8 @@ export default function HomePage() {
             <div className="flex justify-center mb-3">
               <div className="gold-line" />
             </div>
-            <h2 className="section-title">Find Us</h2>
-            <p className="section-subtitle mx-auto">Visit us in the heart of Vilnius, Lithuania</p>
+            <h2 className="section-title">{pageCopy.mapTitle}</h2>
+            <p className="section-subtitle mx-auto">{pageCopy.mapSubtitle}</p>
           </FadeIn>
           <FadeIn>
             <div className="rounded-2xl overflow-hidden border border-luxury-border shadow-luxury h-96">
@@ -582,16 +710,16 @@ export default function HomePage() {
 
         <FadeIn className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <Sparkles size={40} className="text-gold-400 mx-auto mb-6 animate-pulse" />
-          <h2 className="section-title mb-6">Ready to Experience Afroglow?</h2>
+          <h2 className="section-title mb-6">{pageCopy.finalTitle}</h2>
           <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-            Join thousands of satisfied clients and professionals who call Afroglow home.
+            {pageCopy.finalText}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/book" className="btn-gold text-base px-10 py-4">
-              <CalendarDays size={18} /> Book an Appointment
+              <CalendarDays size={18} /> {pageCopy.finalBook}
             </Link>
             <Link href="/professionals" className="btn-outline-gold text-base px-10 py-4">
-              <TrendingUp size={18} /> Browse Professionals
+              <TrendingUp size={18} /> {pageCopy.finalBrowse}
             </Link>
           </div>
         </FadeIn>
@@ -633,8 +761,6 @@ function FAQItem({ question, answer }: { question: string; answer: string }) {
     </div>
   )
 }
-
-import { useState } from 'react'
 
 function AnimatePresenceWrapper({ open, children }: { open: boolean; children: React.ReactNode }) {
   return (

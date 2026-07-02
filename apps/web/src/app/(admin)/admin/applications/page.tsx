@@ -12,8 +12,8 @@ interface Application {
   email:            string
   phone:            string
   specialization:   string
-  yearsOfExperience:number
-  rentalPlan:       string
+  yearsExperience?: string
+  rentalDuration?:  string
   message?:         string
   status:           string
   createdAt:        string
@@ -42,7 +42,7 @@ export default function AdminApplicationsPage() {
       const params = new URLSearchParams()
       if (search) params.set('search', search)
       if (filter) params.set('status', filter)
-      const { data } = await api.get(`/applications?${params}`)
+      const { data } = await api.get(`/rental-applications?${params}`)
       setApps(data.data ?? data)
     } catch {
       setApps([])
@@ -54,7 +54,7 @@ export default function AdminApplicationsPage() {
   async function decide(id: string, status: 'APPROVED' | 'REJECTED') {
     try {
       const endpoint = status === 'APPROVED' ? 'approve' : 'reject'
-      await api.patch(`/applications/${id}/${endpoint}`)
+      await api.patch(`/rental-applications/${id}/${endpoint}`)
       toast.success(`Application ${status.toLowerCase()}`)
       setSelected(null)
       fetchApps()
@@ -117,7 +117,7 @@ export default function AdminApplicationsPage() {
                   <td className="px-4 py-3 text-sm text-gray-300">{app.specialization}</td>
                   <td className="px-4 py-3">
                     <span className="text-xs px-2 py-1 rounded-full bg-gold-500/10 text-gold-400 capitalize">
-                      {app.rentalPlan?.toLowerCase() ?? '—'}
+                      {app.rentalDuration?.toLowerCase() ?? '—'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-400">{app.preferredSpot ?? app.rentalSpot?.spotNumber ?? '—'}</td>
@@ -177,7 +177,7 @@ export default function AdminApplicationsPage() {
               {[
                 { icon: Mail,     label: 'Email',       value: selected.email     },
                 { icon: Phone,    label: 'Phone',       value: selected.phone     },
-                { icon: Calendar, label: 'Experience',  value: `${selected.yearsOfExperience} years` },
+                { icon: Calendar, label: 'Experience',  value: `${selected.yearsExperience ?? '0'} years` },
               ].map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-center gap-3 p-3 bg-luxury-surface rounded-xl">
                   <Icon size={16} className="text-gold-400" />

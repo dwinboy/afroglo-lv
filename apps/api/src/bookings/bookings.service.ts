@@ -17,6 +17,27 @@ export class BookingsService {
   ) {}
 
   async create(dto: CreateBookingDto, userId?: string) {
+    const [service, professional, branch] = await Promise.all([
+      this.prisma.service.findUnique({ where: { id: dto.serviceId } }),
+      this.prisma.professional.findUnique({
+        where: { id: dto.professionalId },
+        include: { services: { select: { id: true } }, user: true },
+      }),
+      dto.branchId
+        ? this.prisma.branch.findUnique({ where: { id: dto.branchId } })
+        : this.prisma.branch.findFirst({ where: { isActive: true }, orderBy: { createdAt: 'asc' } }),
+    ])
+
+    if (!service?.isActive) throw new BadRequestException('Selected service is not available')
+    if (!professional?.user?.isActive) throw new BadRequestException('Selected professional is not available')
+    if (
+      professional.services.length > 0 &&
+      !professional.services.some(s => s.id === dto.serviceId)
+    ) {
+      throw new BadRequestException('Selected professional does not offer this service')
+    }
+    this.assertWithinWorkingHours(dto.date, dto.time, service.duration, branch?.openingHours)
+
     /* Check for conflicts */
     const conflict = await this.prisma.booking.findFirst({
       where: {
@@ -40,7 +61,9 @@ export class BookingsService {
         time:           dto.time,
         notes:          dto.notes,
         status:         'CONFIRMED',
-        branchId:       dto.branchId ?? null,
+        branchId:       dto.branchId ?? branch?.id ?? null,
+        durationMins:   service.duration,
+        totalAmount:    service.price,
       },
       include: {
         service:      true,
@@ -83,6 +106,7 @@ export class BookingsService {
         orderBy: [{ date: 'desc' }, { time: 'desc' }],
         include: {
           service:      { select: { name: true, price: true, duration: true } },
+          customer:     { select: { fullName: true, email: true, phone: true } },
           professional: { include: { user: { select: { fullName: true, avatarUrl: true } } } },
         },
       }),
@@ -194,5 +218,25 @@ export class BookingsService {
     const pro = await this.prisma.professional.findUnique({ where: { userId } })
     if (!pro) throw new ForbiddenException('No professional profile found')
     return pro.id
+  }
+
+  private assertWithinWorkingHours(date: string, time: string, duration: number, openingHours: any) {
+    const dayKey = new Date(`${date}T00:00:00`).toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase()
+    const day = openingHours?.[dayKey]
+    if (day?.closed || !day?.open || !day?.close) throw new BadRequestException('The salon is closed on this date')
+
+    const start = this.minutes(time)
+    const end = start + duration
+    const open = this.minutes(day.open)
+    const close = this.minutes(day.close)
+
+    if (start < open || end > close) {
+      throw new BadRequestException('Selected time is outside salon working hours')
+    }
+  }
+
+  private minutes(value: string) {
+    const [hours, mins] = value.split(':').map(Number)
+    return (hours * 60) + mins
   }
 }

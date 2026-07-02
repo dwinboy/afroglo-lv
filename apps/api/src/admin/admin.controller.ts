@@ -38,10 +38,52 @@ export class AdminController {
     return this.adminService.broadcast(dto)
   }
 
+  @Get('settings/branch')
+  @ApiOperation({ summary: 'Get branch settings' })
+  getBranchSettings() {
+    return this.adminService.getBranchSettings()
+  }
+
+  @Put('settings/branch')
+  @ApiOperation({ summary: 'Update branch settings' })
+  updateBranchSettings(@Body() dto: any) {
+    return this.adminService.updateBranchSettings(dto)
+  }
+
   @Post('seed-services')
   @ApiOperation({ summary: 'Seed default services (Dev only)' })
   seedServices() {
     return this.adminService.seedServices()
+  }
+
+  /* ── Gallery management ─────────────────────── */
+
+  @Get('gallery')
+  @ApiOperation({ summary: 'List gallery items' })
+  listGallery(
+    @Query('status') status?: string,
+    @Query('page')   page = 1,
+    @Query('limit')  limit = 50,
+  ) {
+    return this.adminService.listGallery({ status, page: +page, limit: +limit })
+  }
+
+  @Post('gallery')
+  @ApiOperation({ summary: 'Create a gallery item' })
+  createGalleryItem(@Body() dto: any) {
+    return this.adminService.createGalleryItem(dto)
+  }
+
+  @Put('gallery/:id')
+  @ApiOperation({ summary: 'Update a gallery item' })
+  updateGalleryItem(@Param('id') id: string, @Body() dto: any) {
+    return this.adminService.updateGalleryItem(id, dto)
+  }
+
+  @Delete('gallery/:id')
+  @ApiOperation({ summary: 'Delete a gallery item' })
+  deleteGalleryItem(@Param('id') id: string) {
+    return this.adminService.deleteGalleryItem(id)
   }
 
   /* ── Professional management ─────────────────── */
@@ -99,4 +141,3 @@ export class AdminController {
     return this.adminService.resetProfessionalPassword(id)
   }
 }
-

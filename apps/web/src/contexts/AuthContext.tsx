@@ -45,7 +45,7 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://afroglowlv-api.vercel.app/api'
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4001/api'
 
 // Axios instance with auth interceptors
 const api = axios.create({ baseURL: API_URL })

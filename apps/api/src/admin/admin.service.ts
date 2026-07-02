@@ -71,6 +71,61 @@ export class AdminService {
     return { sent: users.length }
   }
 
+  async getBranchSettings() {
+    let branch = await this.prisma.branch.findFirst({
+      orderBy: { createdAt: 'asc' },
+    })
+
+    if (!branch) {
+      branch = await this.prisma.branch.create({
+        data: {
+          name:    'Afroglow Vilnius',
+          address: 'Kalvarijų g. 88',
+          city:    'Vilnius',
+          country: 'Lithuania',
+          phone:   '+37069150485',
+          email:   'afroglowstudiostudio@gmail.com',
+          openingHours: {
+            monday:    { open: '09:00', close: '21:00' },
+            tuesday:   { open: '09:00', close: '21:00' },
+            wednesday: { open: '09:00', close: '21:00' },
+            thursday:  { open: '09:00', close: '21:00' },
+            friday:    { open: '09:00', close: '21:00' },
+            saturday:  { open: '09:00', close: '19:00' },
+            sunday:    { open: '10:00', close: '17:00' },
+          },
+        },
+      })
+    }
+
+    return branch
+  }
+
+  async updateBranchSettings(dto: {
+    name?: string
+    address?: string
+    city?: string
+    country?: string
+    phone?: string
+    email?: string
+    openingHours?: any
+  }) {
+    const branch = await this.getBranchSettings()
+
+    return this.prisma.branch.update({
+      where: { id: branch.id },
+      data: {
+        name:         dto.name,
+        address:      dto.address,
+        city:         dto.city,
+        country:      dto.country,
+        phone:        dto.phone,
+        email:        dto.email,
+        openingHours: dto.openingHours,
+      },
+    })
+  }
+
   async seedServices() {
     if (process.env.NODE_ENV === 'production') {
       return { message: 'Seeding not allowed in production' }
@@ -86,6 +141,92 @@ export class AdminService {
     }
 
     return { message: `${created} services seeded` }
+  }
+
+  /* ── Gallery management ───────────────────────── */
+
+  async listGallery(filters: { status?: string; page: number; limit: number }) {
+    const page = Math.max(filters.page || 1, 1)
+    const limit = Math.min(Math.max(filters.limit || 50, 1), 100)
+    const where: any = {}
+
+    if (filters.status === 'published') where.isPublished = true
+    if (filters.status === 'draft') where.isPublished = false
+    if (filters.status === 'featured') where.isFeatured = true
+
+    const [data, total] = await Promise.all([
+      this.prisma.galleryItem.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      }),
+      this.prisma.galleryItem.count({ where }),
+    ])
+
+    return { data, total, page, limit, totalPages: Math.ceil(total / limit) }
+  }
+
+  async createGalleryItem(dto: {
+    title?: string
+    caption?: string
+    imageUrl?: string
+    category?: string
+    tags?: string[] | string
+    isFeatured?: boolean
+    isPublished?: boolean
+    sortOrder?: number
+  }) {
+    if (!dto.title?.trim()) throw new ConflictException('Gallery title is required')
+    if (!dto.imageUrl?.trim()) throw new ConflictException('Gallery image URL is required')
+
+    return this.prisma.galleryItem.create({
+      data: {
+        title:       dto.title.trim(),
+        caption:     dto.caption?.trim() || null,
+        imageUrl:    dto.imageUrl.trim(),
+        category:    dto.category?.trim() || null,
+        tags:        this.normalizeTags(dto.tags),
+        isFeatured:  dto.isFeatured ?? false,
+        isPublished: dto.isPublished ?? true,
+        sortOrder:   dto.sortOrder ?? 0,
+      },
+    })
+  }
+
+  async updateGalleryItem(id: string, dto: {
+    title?: string
+    caption?: string | null
+    imageUrl?: string
+    category?: string | null
+    tags?: string[] | string
+    isFeatured?: boolean
+    isPublished?: boolean
+    sortOrder?: number
+  }) {
+    const existing = await this.prisma.galleryItem.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException('Gallery item not found')
+
+    return this.prisma.galleryItem.update({
+      where: { id },
+      data: {
+        ...(dto.title !== undefined ? { title: dto.title.trim() } : {}),
+        ...(dto.caption !== undefined ? { caption: dto.caption?.trim() || null } : {}),
+        ...(dto.imageUrl !== undefined ? { imageUrl: dto.imageUrl.trim() } : {}),
+        ...(dto.category !== undefined ? { category: dto.category?.trim() || null } : {}),
+        ...(dto.tags !== undefined ? { tags: this.normalizeTags(dto.tags) } : {}),
+        ...(dto.isFeatured !== undefined ? { isFeatured: dto.isFeatured } : {}),
+        ...(dto.isPublished !== undefined ? { isPublished: dto.isPublished } : {}),
+        ...(dto.sortOrder !== undefined ? { sortOrder: dto.sortOrder } : {}),
+      },
+    })
+  }
+
+  async deleteGalleryItem(id: string) {
+    const existing = await this.prisma.galleryItem.findUnique({ where: { id } })
+    if (!existing) throw new NotFoundException('Gallery item not found')
+    await this.prisma.galleryItem.delete({ where: { id } })
+    return { deleted: true }
   }
 
   /* ── Professional management ────────────────────── */
@@ -306,5 +447,11 @@ export class AdminService {
     let pw = ''
     for (let i = 0; i < 10; i++) pw += chars[Math.floor(Math.random() * chars.length)]
     return pw
+  }
+
+  private normalizeTags(tags?: string[] | string) {
+    if (!tags) return []
+    const source = Array.isArray(tags) ? tags : tags.split(',')
+    return source.map(tag => tag.trim()).filter(Boolean)
   }
 }
