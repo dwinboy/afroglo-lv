@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { MulterModule } from '@nestjs/platform-express'
-import { UploadController } from './upload.controller'
+import { UploadController, MediaController } from './upload.controller'
 import { UploadService } from './upload.service'
 import { diskStorage } from 'multer'
 import { extname } from 'path'
@@ -24,7 +24,7 @@ import { v4 as uuid } from 'uuid'
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     }),
   ],
-  controllers: [UploadController],
+  controllers: [UploadController, MediaController],
   providers:   [UploadService],
   exports:     [UploadService],
 })

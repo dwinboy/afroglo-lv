@@ -114,13 +114,15 @@ export default function AdminServicesPage() {
 
   async function uploadImage(file: File) {
     const fd = new FormData()
-    fd.append('files', file)
+    fd.append('file', file)
     setUploading(true)
     try {
-      const { data } = await api.post<{ url: string }[]>('/upload/portfolio', fd, {
+      // Stored in the database and served back over https, so the photo shows
+      // on the live site and survives redeploys.
+      const { data } = await api.post<{ url: string }>('/upload/image', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      if (data[0]?.url) setForm(p => ({ ...p, imageUrl: data[0].url }))
+      if (data?.url) setForm(p => ({ ...p, imageUrl: data.url }))
       toast.success('Image uploaded')
     } catch {
       toast.error('Upload failed')

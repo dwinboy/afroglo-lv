@@ -512,3 +512,13 @@ model AnalyticsSnapshot {
   @@unique([date, branchId])
   @@map("analytics_snapshots")
 }
+
+// ─── Media (uploaded images stored in the DB so they survive redeploys) ──
+model Media {
+  id        String   @id @default(cuid())
+  data      Bytes
+  mime      String
+  createdAt DateTime @default(now())
+
+  @@map("media")
+}
