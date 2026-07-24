@@ -13,12 +13,12 @@ export const lt = {
     logout:        'Atsijungti',
   },
   hero: {
-    badge:     'Aukščiausios kokybės salono patirtis',
-    title:     'Kur Grožis',
-    titleGold: 'susitinka su meistriškumu',
-    subtitle:  'Atraskite prestižiškiausią Vilniaus salonų erdvę. Rezervuokite vizitą pas geriausius specialistus arba nuomokite savo darbo vietą.',
+    badge:     'Afro plaukai ir barbershop · Vilnius',
+    title:     'Kur pynimas',
+    titleGold: 'susitinka su kirpimu',
+    subtitle:  'Pynimai, dredai, fade kirpimai ir dažymas pačiame Vilniaus centre. Rezervuokite vietą per minutę ir išeikite pasitikėdami savimi.',
     bookBarber:'Rezervuoti vizitą',
-    rentSpot:  'Nuomotis vietą',
+    rentSpot:  'Nuomotis kėdę',
     stats: {
       professionals: 'Specialistai',
       dailyBookings:  'Rezervacijos',
@@ -28,7 +28,7 @@ export const lt = {
   },
   services: {
     title:    'Mūsų paslaugos',
-    subtitle: 'Aukščiausios kokybės grožio paslaugos',
+    subtitle: 'Nuo tikslių fade kirpimų iki sudėtingų pynimų — kiekvieną paslaugą atlieka Afro plaukų specialistai',
     haircut:        { name: 'Kirpimas',          desc: 'Tikslūs kirpimai pagal jūsų stilių' },
     beardTrim:      { name: 'Barzdos formavimas',desc: 'Profesionali barzdos priežiūra' },
     braiding:       { name: 'Pynimas',           desc: 'Įmantrios afrikietiškos šukuosenos' },
@@ -40,7 +40,7 @@ export const lt = {
   },
   professionals: {
     title:       'Susipažinkite su mūsų specialistais',
-    subtitle:    'Atrinkti ir patikrinti grožio specialistai, pasiruošę jus aptarnauti',
+    subtitle:    'Patikrinti pynimo, dredų, kirpimo ir dažymo specialistai — kiekvienas peržiūrimas prieš pradedant dirbti',
     bookNow:     'Rezervuoti',
     viewProfile: 'Peržiūrėti profilį',
     rating:      'Įvertinimas',
@@ -48,7 +48,7 @@ export const lt = {
   },
   rental: {
     title:    'Nuomokitės darbo vietą',
-    subtitle: 'Prisijunkite prie mūsų grožio profesionalų bendruomenės.',
+    subtitle: 'Jūs atsinešate meistriškumą, mes – klientus. Kokybiškos darbo vietos, jokių papildomų išlaidų, lankstus grafikas.',
     apply:    'Pateikti paraišką',
     benefits: {
       title:     'Kodėl verta nuomotis Afroglow?',
@@ -76,14 +76,14 @@ export const lt = {
   },
   testimonials: {
     title:    'Ką sako mūsų klientai',
-    subtitle: 'Tikri atsiliepimai iš tikrų klientų',
+    subtitle: 'Tikri atsiliepimai iš klientų visame Vilniuje',
   },
   faq: {
     title:    'Dažniausiai užduodami klausimai',
     subtitle: 'Viskas, ką reikia žinoti',
   },
   footer: {
-    tagline:   'Aukščiausios kokybės salonų erdvė Vilniaus širdyje.',
+    tagline:   'Pynimai, dredai ir kirpimai Vilniaus širdyje.',
     links:     'Greitos nuorodos',
     services:  'Paslaugos',
     contact:   'Susisiekite',

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Settings, MapPin, Phone, Mail, Clock, Save, MessageCircle } from 'lucide-react'
+import { Settings, MapPin, Phone, Mail, Clock, Save } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon'
 import { toast } from 'react-hot-toast'
 import { api } from '@/contexts/AuthContext'
 
@@ -149,7 +150,7 @@ export default function AdminSettingsPage() {
               className="input-luxury w-full" />
           </div>
           <div>
-            <label className="label-luxury flex items-center gap-1.5"><MessageCircle size={12} /> WhatsApp Booking Number</label>
+            <label className="label-luxury flex items-center gap-1.5"><WhatsAppIcon size={12} /> WhatsApp Booking Number</label>
             <input value={settings.whatsappNumber}
               onChange={e => setSettings(s => ({ ...s, whatsappNumber: e.target.value }))}
               className="input-luxury w-full"

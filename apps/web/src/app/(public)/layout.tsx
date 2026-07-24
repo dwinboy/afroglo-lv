@@ -6,7 +6,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <Navbar />
-      <main>{children}</main>
+      {/* Bottom padding on mobile so the sticky booking bar never covers content */}
+      <main className="pb-24 md:pb-0">{children}</main>
       <MobileBookingBar />
       <Footer />
     </>

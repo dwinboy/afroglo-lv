@@ -13,12 +13,12 @@ export const en = {
     logout:        'Sign Out',
   },
   hero: {
-    badge:     'Premium Salon Experience',
-    title:     'Where Beauty',
-    titleGold: 'Meets Excellence',
-    subtitle:  'Discover Vilnius\'s most prestigious salon coworking space. Book top-tier beauty professionals or rent your own working spot.',
-    bookBarber:'Book a Barber',
-    rentSpot:  'Rent a Spot',
+    badge:     'Afro Hair & Barbering · Vilnius',
+    title:     'Where Braiding',
+    titleGold: 'Meets Barbing',
+    subtitle:  'Expert braids, locs, fades and colour in the heart of Vilnius. Book your chair in under a minute — and walk out with confidence, every time.',
+    bookBarber:'Book your appointment',
+    rentSpot:  'Rent a chair',
     stats: {
       professionals: 'Professionals',
       dailyBookings:  'Daily Bookings',
@@ -28,7 +28,7 @@ export const en = {
   },
   services: {
     title:    'Our Services',
-    subtitle: 'Premium beauty services delivered by certified professionals',
+    subtitle: 'From precision fades to intricate braids — every service delivered by specialists who work with Afro hair every day',
     haircut:        { name: 'Haircut',        desc: 'Precision cuts tailored to your style' },
     beardTrim:      { name: 'Beard Trim',     desc: 'Expert beard grooming and shaping' },
     braiding:       { name: 'Braiding',       desc: 'Intricate African & modern braiding styles' },
@@ -40,7 +40,7 @@ export const en = {
   },
   professionals: {
     title:       'Meet Our Professionals',
-    subtitle:    'Hand-picked, certified beauty experts ready to serve you',
+    subtitle:    'Verified specialists in braiding, locs, barbering and colour — each one reviewed before they take a chair',
     bookNow:     'Book Now',
     viewProfile: 'View Profile',
     rating:      'Rating',
@@ -48,7 +48,7 @@ export const en = {
   },
   rental: {
     title:    'Rent a Working Spot',
-    subtitle: 'Join our community of beauty professionals. Premium workspace, great clients.',
+    subtitle: 'You bring the craft, we bring the clients. Premium chairs, no overheads, flexible terms.',
     apply:    'Apply Now',
     benefits: {
       title:     'Why Rent at Afroglow?',
@@ -76,14 +76,14 @@ export const en = {
   },
   testimonials: {
     title:    'What Our Clients Say',
-    subtitle: 'Real reviews from real customers',
+    subtitle: 'Real reviews from clients across Vilnius',
   },
   faq: {
     title:    'Frequently Asked Questions',
     subtitle: 'Everything you need to know',
   },
   footer: {
-    tagline:   'Premium salon coworking in the heart of Vilnius.',
+    tagline:   'Braids, locs and barbering in the heart of Vilnius.',
     links:     'Quick Links',
     services:  'Services',
     contact:   'Contact Us',

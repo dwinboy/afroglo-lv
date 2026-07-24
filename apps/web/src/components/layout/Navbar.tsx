@@ -43,7 +43,9 @@ export default function Navbar() {
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled
           ? 'bg-luxury-black/95 backdrop-blur-xl border-b border-luxury-border shadow-luxury'
-          : 'bg-transparent',
+          // Not scrolled the bar sits over hero photography, so a soft top scrim
+          // keeps the links readable without looking like a solid bar.
+          : 'bg-gradient-to-b from-black/80 via-black/45 to-transparent',
       )}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

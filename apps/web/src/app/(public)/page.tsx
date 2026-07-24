@@ -354,7 +354,6 @@ export default function HomePage() {
 
   const stats = useMemo(() => [
     { value: publicStats.professionals.toLocaleString(), label: t.hero.stats.professionals },
-    { value: publicStats.bookings.toLocaleString(),      label: t.hero.stats.dailyBookings },
     { value: `${publicStats.satisfaction}%`,             label: t.hero.stats.satisfaction },
     { value: '5+',                                       label: t.hero.stats.yearsExperience },
   ], [publicStats, t])
@@ -373,12 +372,13 @@ export default function HomePage() {
           className="object-cover object-center grade-warm"
           sizes="100vw"
         />
-        {/* Legibility scrim — anchored darkest at the base so the stats row stays readable */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/72 via-black/52 to-black/90" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(10,10,10,0.55)_75%)]" />
-        {/* Warm bloom over the scrim so the studio's illuminated sign glows through */}
-        <div className="absolute inset-0 mix-blend-screen bg-[radial-gradient(ellipse_50%_38%_at_44%_31%,rgba(244,207,83,0.26),transparent_72%)]" />
-        <div className="absolute inset-0 bg-noise opacity-25" />
+        {/* The studio photo is bright, so the base scrim carries most of the contrast */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/88 via-black/78 to-black/95" />
+        {/* Focus scrim directly behind the centred copy (darkest where the text sits) */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_75%_62%_at_50%_52%,rgba(0,0,0,0.62),transparent_78%)]" />
+        {/* Warm bloom kept high — over the illuminated sign, clear of the copy */}
+        <div className="absolute inset-0 mix-blend-screen bg-[radial-gradient(ellipse_34%_22%_at_44%_17%,rgba(244,207,83,0.20),transparent_70%)]" />
+        <div className="absolute inset-0 bg-noise opacity-20" />
 
         {/* Grid lines */}
         <div className="absolute inset-0 opacity-5"
@@ -392,7 +392,7 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full
-                         bg-gold-500/10 border border-gold-500/30 mb-8"
+                         bg-black/45 backdrop-blur-md border border-gold-500/40 mb-8"
             >
               <Sparkles size={14} className="text-gold-400" />
               <span className="text-xs font-semibold tracking-widest text-gold-400 uppercase">
@@ -405,7 +405,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1 }}
-              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-bold leading-tight mb-6"
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-bold leading-tight mb-6 text-shadow-hero"
             >
               <span className="text-white">{t.hero.title} </span>
               <span className="gold-shimmer">{t.hero.titleGold}</span>
@@ -416,7 +416,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.25 }}
-              className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10"
+              className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto mb-10 text-shadow-soft"
             >
               {t.hero.subtitle}
             </motion.p>
@@ -444,12 +444,12 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="grid grid-cols-2 sm:grid-cols-4 gap-6 mt-16 pt-10 border-t border-white/10"
+              className="grid grid-cols-3 gap-6 mt-16 pt-10 border-t border-white/15 max-w-2xl mx-auto"
             >
               {stats.map((stat, i) => (
                 <div key={i} className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-gradient-gold">{stat.value}</div>
-                  <div className="text-xs text-gray-400 mt-1 uppercase tracking-wider">{stat.label}</div>
+                  <div className="text-xs text-gray-300 mt-1 uppercase tracking-wider text-shadow-soft">{stat.label}</div>
                 </div>
               ))}
             </motion.div>

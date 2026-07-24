@@ -335,6 +335,9 @@ html.light .on-dark-media .badge-gold {
   .text-balance { text-wrap: balance; }
   /* Unified warm/gold photo grade so mixed source photos read as one set. */
   .grade-warm { filter: contrast(1.06) saturate(1.04) brightness(0.98) sepia(0.14); }
+  /* Keeps copy legible over photography regardless of what sits behind it. */
+  .text-shadow-hero { text-shadow: 0 2px 20px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.55); }
+  .text-shadow-soft { text-shadow: 0 1px 10px rgba(0,0,0,0.55); }
   .bg-noise {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
   }

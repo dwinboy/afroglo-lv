@@ -72,8 +72,8 @@ const COPY = {
     proText: 'Pick your preferred expert',
     proFallbackText: 'Showing all available professionals',
     noServices: 'No services available yet.',
-    noProsTitle: 'No professionals available yet',
-    noProsText: 'Our team is being set up. Check back soon!',
+    noProsTitle: 'Let us arrange this one personally',
+    noProsText: 'No specialist is bookable online for this service right now. Message us on WhatsApp and we will confirm your appointment within minutes.',
     profileHint: 'View profile to see services and work gallery',
     popular: 'Popular',
     professional: 'Professional',
@@ -131,8 +131,8 @@ const COPY = {
     proText: 'Pasirinkite norimą specialistą',
     proFallbackText: 'Rodomi visi galimi specialistai',
     noServices: 'Paslaugų kol kas nėra.',
-    noProsTitle: 'Specialistų kol kas nėra',
-    noProsText: 'Komanda ruošiama. Užsukite dar kartą vėliau.',
+    noProsTitle: 'Suderinkime vizitą asmeniškai',
+    noProsText: 'Šiai paslaugai internetu kol kas nėra laisvo specialisto. Parašykite mums per WhatsApp ir patvirtinsime vizitą per kelias minutes.',
     profileHint: 'Atidarykite profilį, kad pamatytumėte paslaugas ir darbų galeriją',
     popular: 'Populiaru',
     professional: 'Specialistas',
@@ -329,10 +329,19 @@ export default function BookingPage() {
       {dataLoading ? (
         <div className="flex items-center justify-center py-16"><Loader size={32} className="text-gold-400 animate-spin" /></div>
       ) : availablePros.length === 0 ? (
-        <div className="card-luxury p-12 text-center">
-          <Scissors size={32} className="mx-auto text-gray-500 mb-4" />
-          <p className="text-white font-medium mb-1">{copy.noProsTitle}</p>
-          <p className="text-sm text-gray-400">{copy.noProsText}</p>
+        <div className="card-luxury p-10 sm:p-12 text-center">
+          <Scissors size={32} className="mx-auto text-gold-400 mb-4" />
+          <p className="text-white font-semibold text-lg mb-2">{copy.noProsTitle}</p>
+          <p className="text-sm text-gray-400 max-w-md mx-auto mb-7">{copy.noProsText}</p>
+          {/* Rather than dead-end the customer, hand them straight to WhatsApp */}
+          <WhatsAppBookingButton
+            className="mx-auto"
+            message={selectedService
+              ? (locale === 'lt'
+                  ? `Sveiki, Afroglow! Noreciau rezervuoti: ${selectedService.name}.`
+                  : `Hello Afroglow, I would like to book: ${selectedService.name}.`)
+              : undefined}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

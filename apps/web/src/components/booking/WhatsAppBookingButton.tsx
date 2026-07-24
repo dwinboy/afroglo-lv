@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { MessageCircle } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon'
 import { api } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 import { useI18n } from '@/contexts/I18nContext'
@@ -73,7 +73,7 @@ export default function WhatsAppBookingButton({ className, iconOnly = false, mes
       )}
       aria-label={copy.label}
     >
-      <MessageCircle size={iconOnly ? 18 : 16} />
+      <WhatsAppIcon size={iconOnly ? 22 : 17} />
       {!iconOnly && copy.label}
     </a>
   )
