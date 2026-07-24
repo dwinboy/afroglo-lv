@@ -67,10 +67,10 @@ export default function DashboardPortfolioPage() {
     if (!file) return
     setUploading(true)
     try {
-      // 1. Upload image file
+      // 1. Upload image file — DB-backed so it shows on the live domain
       const fd = new FormData()
-      fd.append('files', file)
-      const { data: uploadData } = await api.post('/upload/portfolio', fd, {
+      fd.append('file', file)
+      const { data: uploadData } = await api.post('/upload/image', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       const imageUrl = Array.isArray(uploadData) ? uploadData[0].url : uploadData.url

@@ -75,14 +75,17 @@ export default function AdminGalleryPage() {
 
   const uploadImage = async (file: File) => {
     const fd = new FormData()
-    fd.append('files', file)
+    fd.append('file', file)
     setUploading(true)
     try {
-      const { data } = await api.post<{ url: string }[]>('/upload/portfolio', fd, {
+      // Durable DB-backed upload so gallery images show on the live domain.
+      const { data } = await api.post<{ url: string }>('/upload/image', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      setForm(prev => ({ ...prev, imageUrl: data[0]?.url ?? prev.imageUrl }))
+      setForm(prev => ({ ...prev, imageUrl: data?.url ?? prev.imageUrl }))
       toast.success('Image uploaded')
+    } catch {
+      toast.error('Upload failed')
     } finally {
       setUploading(false)
     }
