@@ -86,6 +86,8 @@ export class MediaController {
     if (!media) throw new NotFoundException('Image not found')
     res.set('Content-Type', media.mime)
     res.set('Cache-Control', 'public, max-age=31536000, immutable')
+    // Embedded via <img> from the frontend's own domain — must be cross-origin.
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin')
     res.send(Buffer.from(media.data))
   }
 }

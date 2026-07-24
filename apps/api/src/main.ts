@@ -30,6 +30,10 @@ async function bootstrap() {
   /* ── Security ──────────────────────── */
   app.use(helmet({
     crossOriginEmbedderPolicy: false,
+    // The frontend lives on a different domain (afroglowstudio.com), so images
+    // served here are embedded cross-origin. Helmet's default 'same-origin'
+    // policy makes browsers refuse to render them, so allow cross-origin.
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
